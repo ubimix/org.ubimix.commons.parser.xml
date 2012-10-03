@@ -3,8 +3,8 @@
  */
 package org.ubimix.commons.parser.xml;
 
-import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.CharStream.Pointer;
+import org.ubimix.commons.parser.ITokenizer.StreamToken;
 
 /**
  * @author kotelnikov
@@ -22,16 +22,6 @@ public class AttrToken extends StreamToken {
     private Pointer fValueBegin;
 
     private Pointer fValueEnd;
-
-    public AttrToken(
-        String key,
-        boolean open,
-        boolean close,
-        Pointer begin,
-        Pointer end,
-        String str) {
-        super(key, open, close, begin, end, str);
-    }
 
     /**
      * @return the name
@@ -77,10 +67,12 @@ public class AttrToken extends StreamToken {
 
     public String getValueOnly() {
         String value = getValue();
-        if (value.startsWith("'") || value.startsWith("\""))
+        if (value.startsWith("'") || value.startsWith("\"")) {
             value = value.substring(1);
-        if (value.endsWith("'") || value.endsWith("\""))
+        }
+        if (value.endsWith("'") || value.endsWith("\"")) {
             value = value.substring(0, value.length() - 1);
+        }
         return value;
     }
 

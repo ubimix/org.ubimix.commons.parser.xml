@@ -3,26 +3,25 @@
  */
 package org.ubimix.commons.parser.xml;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.ubimix.commons.parser.AbstractTokenizer;
 import org.ubimix.commons.parser.CharStream;
-import org.ubimix.commons.parser.ITokenizer;
-import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.CharStream.Marker;
 import org.ubimix.commons.parser.CharStream.Pointer;
 
-public class TagTokenizer implements ITokenizer {
+public class TagTokenizer extends AbstractTokenizer {
 
     public final static TagTokenizer INSTANCE = new TagTokenizer();
 
     private AttrTokenizer fAttrTokenizer;
 
-    private String fKey;
-
     public TagTokenizer() {
-        this(XMLDict.TAG, AttrTokenizer.INSTANCE);
+        this(AttrTokenizer.INSTANCE);
     }
 
-    public TagTokenizer(String key, AttrTokenizer attrTokenizer) {
-        fKey = key;
+    public TagTokenizer(AttrTokenizer attrTokenizer) {
         fAttrTokenizer = attrTokenizer;
     }
 
@@ -69,41 +68,51 @@ public class TagTokenizer implements ITokenizer {
         return result;
     }
 
+    @Override
+    protected StreamToken newToken() {
+        return new TagToken();
+    }
+
+    @Override
     public StreamToken read(CharStream stream) {
         char ch = stream.getChar();
-        if (ch != '<')
+        if (ch != '<') {
             return null;
+        }
 
         TagToken result = null;
         Marker marker = stream.markPosition();
         try {
             Pointer begin = stream.getPointer();
-            if (!stream.incPos())
+            if (!stream.incPos()) {
                 return null;
+            }
             ch = stream.getChar();
             boolean open = true;
             boolean close = false;
             if (ch == '/') {
                 open = false;
                 close = true;
-                if (!stream.incPos())
+                if (!stream.incPos()) {
                     return result;
+                }
             }
 
             Pointer nameBegin = stream.getPointer();
             skipName(stream);
             Pointer nameEnd = stream.getPointer();
-            if (nameBegin.pos == nameEnd.pos)
+            if (nameBegin.pos == nameEnd.pos) {
                 return null;
+            }
             String name = marker.getSubstring(nameBegin, nameEnd);
 
-            AttrToken attr = null;
-            AttrToken prev = null;
+            List<AttrToken> attributes = null;
             while (true) {
                 ch = stream.getChar();
                 if (ch == '/') {
-                    if (!stream.incPos())
+                    if (!stream.incPos()) {
                         break;
+                    }
                     ch = stream.getChar();
                     if (ch == '>') {
                         close = true;
@@ -117,30 +126,32 @@ public class TagTokenizer implements ITokenizer {
                     return null;
                 }
 
-                if (skipSpaces(stream))
-                    continue;
-
-                if (skipSpecialSymbols(stream))
-                    continue;
-
-                AttrToken next = (AttrToken) fAttrTokenizer.read(stream);
-                if (next != null) {
-                    if (attr == null) {
-                        attr = next;
-                    }
-                    next.insertBefore(prev);
-                    prev = next;
+                if (skipSpaces(stream)) {
                     continue;
                 }
 
-                if (!stream.incPos())
+                if (skipSpecialSymbols(stream)) {
+                    continue;
+                }
+
+                AttrToken next = fAttrTokenizer.read(stream);
+                if (next != null) {
+                    if (attributes == null) {
+                        attributes = new ArrayList<AttrToken>();
+                    }
+                    attributes.add(next);
+                    continue;
+                }
+
+                if (!stream.incPos()) {
                     break;
+                }
             }
             Pointer end = stream.getPointer();
-            result = new TagToken(fKey, open, close, begin, end, marker
-                .getSubstring());
+            result = newToken(begin, end, marker.getSubstring());
+            result.init(open, close);
             result.setName(nameBegin, nameEnd, name);
-            result.setFirstAttribute(attr);
+            result.setAttributes(attributes);
             return result;
         } finally {
             marker.close(result == null);
@@ -149,12 +160,14 @@ public class TagTokenizer implements ITokenizer {
 
     private void skipName(CharStream stream) {
         char ch = stream.getChar();
-        if (!Character.isLetter(ch))
+        if (!Character.isLetter(ch)) {
             return;
+        }
         while (stream.incPos()) {
             ch = stream.getChar();
-            if (!Character.isLetterOrDigit(ch) && ch != ':')
+            if (!Character.isLetterOrDigit(ch) && ch != ':') {
                 break;
+            }
         }
     }
 
@@ -162,8 +175,9 @@ public class TagTokenizer implements ITokenizer {
         boolean result = false;
         while (Character.isSpaceChar(stream.getChar())) {
             result = true;
-            if (!stream.incPos())
+            if (!stream.incPos()) {
                 break;
+            }
         }
         return result;
     }
@@ -172,8 +186,9 @@ public class TagTokenizer implements ITokenizer {
         boolean result = false;
         while (isSpecialSymbol(stream.getChar())) {
             result = true;
-            if (!stream.incPos())
+            if (!stream.incPos()) {
                 break;
+            }
         }
         return result;
     }

@@ -8,7 +8,6 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.ubimix.commons.parser.CharStream;
-import org.ubimix.commons.parser.xml.Entity;
 
 /**
  * @author kotelnikov

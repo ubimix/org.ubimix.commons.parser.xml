@@ -3,31 +3,33 @@
  */
 package org.ubimix.commons.parser.xml;
 
-import org.ubimix.commons.parser.StreamToken;
-import org.ubimix.commons.parser.CharStream.Pointer;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.ubimix.commons.parser.ITokenizer.StreamToken;
 
 /**
  * @author kotelnikov
  */
 public class PrologToken extends StreamToken {
 
-    private PrologToken fFirstChild;
+    private List<PrologToken> fChildren = new ArrayList<PrologToken>();
 
-    public PrologToken(String key, Pointer begin, Pointer end, String str) {
-        super(key, begin, end, str);
+    public List<PrologToken> getChildren() {
+        return fChildren;
     }
 
-    public PrologToken getFirstChild() {
-        return fFirstChild;
-    }
-
-    public void setFirstChild(PrologToken firstChild) {
-        fFirstChild = firstChild;
+    public void setChildren(List<StreamToken> children) {
+        fChildren.clear();
+        for (StreamToken token : children) {
+            if (token instanceof PrologToken) {
+                fChildren.add((PrologToken) token);
+            }
+        }
     }
 
     @Override
     public String toString() {
-        return super.toString()
-            + (fFirstChild != null ? "[" + fFirstChild + "]" : "");
+        return super.toString() + fChildren;
     }
 }

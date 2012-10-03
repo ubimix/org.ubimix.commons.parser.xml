@@ -3,17 +3,22 @@
  */
 package org.ubimix.commons.parser.xml;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.CharStream.Pointer;
+import org.ubimix.commons.parser.ITokenizer.StreamToken;
 
+/**
+ * @author kotelnikov
+ */
 public class TagToken extends StreamToken {
 
-    private Map<String, String> fAttributes;
+    private List<AttrToken> fAttributes;
 
-    private AttrToken fFirstAttribute;
+    private boolean fClose;
 
     private String fName;
 
@@ -21,35 +26,29 @@ public class TagToken extends StreamToken {
 
     private Pointer fNameEnd;
 
-    public TagToken(
-        String key,
-        boolean open,
-        boolean close,
-        Pointer begin,
-        Pointer end,
-        String str) {
-        super(key, open, close, begin, end, str);
-    }
+    private boolean fOpen;
 
-    public Map<String, String> getAttributes() {
-        if (fAttributes == null) {
-            fAttributes = new LinkedHashMap<String, String>();
-            AttrToken attr = getFirstAttribute();
-            while (attr != null) {
-                String name = attr.getName();
-                String value = attr.getValueOnly();
-                fAttributes.put(name, value);
-                attr = (AttrToken) attr.getNext();
-            }
-        }
-        return fAttributes;
+    public TagToken() {
     }
 
     /**
      * @return the firstAttribute
      */
-    public AttrToken getFirstAttribute() {
-        return fFirstAttribute;
+    public List<AttrToken> getAttributes() {
+        return fAttributes != null ? fAttributes : Collections
+            .<AttrToken> emptyList();
+    }
+
+    public Map<String, String> getAttributesAsMap() {
+        Map<String, String> result = new LinkedHashMap<String, String>();
+        if (fAttributes != null) {
+            for (AttrToken token : fAttributes) {
+                String name = token.getName();
+                String value = token.getValueOnly();
+                result.put(name, value);
+            }
+        }
+        return result;
     }
 
     /**
@@ -73,11 +72,25 @@ public class TagToken extends StreamToken {
         return fNameEnd;
     }
 
+    protected TagToken init(boolean open, boolean close) {
+        fOpen = open;
+        fClose = close;
+        return this;
+    }
+
+    public boolean isClose() {
+        return fClose;
+    }
+
+    public boolean isOpen() {
+        return fOpen;
+    }
+
     /**
      * @param firstAttribute the firstAttribute to set
      */
-    public void setFirstAttribute(AttrToken firstAttribute) {
-        fFirstAttribute = firstAttribute;
+    public void setAttributes(List<AttrToken> attributes) {
+        fAttributes = attributes;
     }
 
     public void setName(Pointer begin, Pointer end, String str) {

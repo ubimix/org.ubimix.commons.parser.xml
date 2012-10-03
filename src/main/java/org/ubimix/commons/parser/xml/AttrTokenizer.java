@@ -3,13 +3,15 @@
  */
 package org.ubimix.commons.parser.xml;
 
+import org.ubimix.commons.parser.AbstractTokenizer;
 import org.ubimix.commons.parser.CharStream;
-import org.ubimix.commons.parser.ITokenizer;
-import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.CharStream.Marker;
 import org.ubimix.commons.parser.CharStream.Pointer;
 
-public class AttrTokenizer implements ITokenizer {
+/**
+ * @author kotelnikov
+ */
+public class AttrTokenizer extends AbstractTokenizer {
 
     public static final AttrTokenizer INSTANCE = new AttrTokenizer();
 
@@ -37,16 +39,6 @@ public class AttrTokenizer implements ITokenizer {
         return result;
     }
 
-    private String fKey;
-
-    public AttrTokenizer() {
-        this(XMLDict.ATTR);
-    }
-
-    public AttrTokenizer(String key) {
-        fKey = key;
-    }
-
     protected char getEscapeSymbol() {
         return '\\';
     }
@@ -55,15 +47,22 @@ public class AttrTokenizer implements ITokenizer {
         return !Character.isSpaceChar(ch) && ch != '>' && ch != '<';
     }
 
-    public StreamToken read(CharStream stream) {
+    @Override
+    protected StreamToken newToken() {
+        return new AttrToken();
+    }
+
+    @Override
+    public AttrToken read(CharStream stream) {
         AttrToken result = null;
         Marker marker = stream.markPosition();
         try {
             Pointer nameBegin = stream.getPointer();
             skipName(stream);
             Pointer nameEnd = stream.getPointer();
-            if (nameBegin.pos == nameEnd.pos)
+            if (nameBegin.pos == nameEnd.pos) {
                 return null;
+            }
             String name = marker.getSubstring(nameEnd.pos - nameBegin.pos);
             skipSpaces(stream);
             Pointer valueBegin = stream.getPointer();
@@ -77,10 +76,7 @@ public class AttrTokenizer implements ITokenizer {
             }
             String value = marker.getSubstring(valueBegin, valueEnd.pos
                 - valueBegin.pos);
-            result = new AttrToken(
-                fKey,
-                true,
-                false,
+            result = newToken(
                 nameBegin,
                 valueEnd,
                 marker.getSubstring(valueEnd.pos));
@@ -95,8 +91,9 @@ public class AttrTokenizer implements ITokenizer {
     private void skipName(CharStream stream) {
         char ch = stream.getChar();
         while (Character.isLetterOrDigit(ch) || ch == ':' || ch == '-') {
-            if (!stream.incPos())
+            if (!stream.incPos()) {
                 break;
+            }
             ch = stream.getChar();
         }
     }
@@ -113,8 +110,9 @@ public class AttrTokenizer implements ITokenizer {
             char ch = stream.getChar();
             while (isValueChar(ch)) {
                 result = true;
-                if (!stream.incPos())
+                if (!stream.incPos()) {
                     break;
+                }
                 ch = stream.getChar();
             }
         }

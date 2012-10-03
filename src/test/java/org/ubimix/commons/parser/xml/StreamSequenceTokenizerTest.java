@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 import org.ubimix.commons.parser.CharStream;
 import org.ubimix.commons.parser.CompositeTokenizer;
 import org.ubimix.commons.parser.ITokenizer;
-import org.ubimix.commons.parser.StreamToken;
+import org.ubimix.commons.parser.ITokenizer.StreamToken;
 import org.ubimix.commons.parser.base.SequenceTokenizer;
 import org.ubimix.commons.parser.text.TextTokenizer;
 
@@ -25,15 +25,15 @@ public class StreamSequenceTokenizerTest extends TestCase {
     }
 
     private ITokenizer newSequenceTokenizer(String beginSequence) {
-        return new SequenceTokenizer("begin", beginSequence);
+        return new SequenceTokenizer(beginSequence);
     }
 
     private CompositeTokenizer newTokenizer(
         String beginSequence,
         String endSequence) {
         CompositeTokenizer tokenizer = new CompositeTokenizer();
-        tokenizer.addTokenizer(new SequenceTokenizer("begin", beginSequence));
-        tokenizer.addTokenizer(new SequenceTokenizer("end", endSequence));
+        tokenizer.addTokenizer(new SequenceTokenizer(beginSequence));
+        tokenizer.addTokenizer(new SequenceTokenizer(endSequence));
         tokenizer.addTokenizer(new TextTokenizer());
         return tokenizer;
     }
@@ -87,11 +87,12 @@ public class StreamSequenceTokenizerTest extends TestCase {
         CharStream stream = new CharStream(str);
         while (true) {
             StreamToken token = tokenizer.read(stream);
-            if (token == null)
+            if (token == null) {
                 break;
-            first.append(token.getToken());
+            }
+            first.append(token.getText());
             if (control != null) {
-                second.append("[").append(token.getToken()).append("]");
+                second.append("[").append(token.getText()).append("]");
             }
         }
         if (control != null) {

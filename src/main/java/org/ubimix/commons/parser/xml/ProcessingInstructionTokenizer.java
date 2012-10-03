@@ -12,15 +12,16 @@ public class ProcessingInstructionTokenizer extends DelimitedTextTokenizer {
 
     public static final ProcessingInstructionTokenizer INSTANCE = new ProcessingInstructionTokenizer();
 
-    public ProcessingInstructionTokenizer() {
-        this(XMLDict.PROCESSING);
-    }
-
     /**
      * 
      */
-    public ProcessingInstructionTokenizer(String key) {
-        super(key, "<?", "?>");
+    public ProcessingInstructionTokenizer() {
+        super("<?", "?>", false);
+    }
+
+    @Override
+    protected StreamToken newToken() {
+        return new ProcessingInstructionToken();
     }
 
 }

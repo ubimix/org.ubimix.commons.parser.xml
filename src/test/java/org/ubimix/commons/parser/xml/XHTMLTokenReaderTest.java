@@ -4,17 +4,13 @@
 package org.ubimix.commons.parser.xml;
 
 import java.io.IOException;
+import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.ubimix.commons.parser.CharStream;
 import org.ubimix.commons.parser.ITokenizer;
-import org.ubimix.commons.parser.StreamToken;
-import org.ubimix.commons.parser.xml.AttrToken;
-import org.ubimix.commons.parser.xml.AttrTokenizer;
-import org.ubimix.commons.parser.xml.TagToken;
-import org.ubimix.commons.parser.xml.TagTokenizer;
-import org.ubimix.commons.parser.xml.XMLTokenizer;
+import org.ubimix.commons.parser.ITokenizer.StreamToken;
 
 /**
  * @author kotelnikov
@@ -48,25 +44,14 @@ public class XHTMLTokenReaderTest extends TestCase {
         if (!printOnScreen()) {
             return;
         }
-        String s = token.getToken();
+        String s = token.getText();
         s = s
             .replaceAll("\\\\", "\\\\")
             .replaceAll("\\t", "\\\\t")
             .replaceAll("\\r\\n", "\\\\n")
             .replaceAll("\\n", "\\\\n");
-        String status = token.isOpen() ? "+" : "-";
-        status += "/";
-        status += token.isClose() ? "+" : "-";
-
         fTokenCounter++;
-        System.out.println(fTokenCounter
-            + ")\t"
-            + token
-            + "\t"
-            + status
-            + "\t'"
-            + s
-            + "'");
+        System.out.println(fTokenCounter + ")\t" + token + "\t'" + s + "'");
     }
 
     @Override
@@ -206,7 +191,10 @@ public class XHTMLTokenReaderTest extends TestCase {
         testTagTokenizer("<tag a = 'b'  ", "tag", "a", "'b'");
     }
 
-    private void testTagTokenizer(String str, String tag, String... attrs) {
+    private void testTagTokenizer(
+        String str,
+        String tag,
+        String... attrsControl) {
         CharStream stream = new CharStream(str);
         StreamToken token = TagTokenizer.INSTANCE.read(stream);
         if (tag == null) {
@@ -217,19 +205,20 @@ public class XHTMLTokenReaderTest extends TestCase {
         assertTrue(token instanceof TagToken);
         TagToken tagToken = (TagToken) token;
         assertEquals(tag, tagToken.getName());
-        AttrToken attr = tagToken.getFirstAttribute();
-        for (int i = 0; i < attrs.length;) {
-            assertNotNull(attr);
-            String name = attrs[i++];
-            String value = attrs[i++];
-            assertEquals(name, attr.getName());
-            assertEquals(value, attr.getValue());
-            attr = (AttrToken) attr.getNext();
+        List<AttrToken> attrTokens = tagToken.getAttributes();
+        assertEquals(attrsControl.length / 2, attrTokens.size());
+        for (int i = 0; i < attrsControl.length;) {
+            AttrToken attrToken = attrTokens.get(i / 2);
+            assertNotNull(attrToken);
+            String name = attrsControl[i++];
+            String value = attrsControl[i++];
+            assertEquals(name, attrToken.getName());
+            assertEquals(value, attrToken.getValue());
         }
-        assertNull(attr);
     }
 
     public void testXMLTokenizer() throws IOException {
+
         testXMLTokenizer("<!a>", "[<!a>]");
         testXMLTokenizer("<!a><b c='?y'/>", "[<!a>][<b c='?y'/>]");
         testXMLTokenizer("", "");
@@ -345,9 +334,9 @@ public class XHTMLTokenReaderTest extends TestCase {
                 break;
             }
             printToken(token);
-            first.append(token.getToken());
+            first.append(token.getText());
             if (control != null) {
-                second.append("[").append(token.getToken()).append("]");
+                second.append("[").append(token.getText()).append("]");
             }
         }
         assertEquals(str, first.toString());

@@ -45,7 +45,7 @@ public class XMLTokenizer extends CompositeTokenizer {
      * @param entityReader
      */
     public XMLTokenizer(EntityReader entityReader) {
-        T_ENTITY = new EntityTokenizer(entityReader, XMLDict.ENTITY);
+        T_ENTITY = new EntityTokenizer(entityReader);
         addTokenizer(TagTokenizer.INSTANCE);
         addTokenizer(CommentTokenizer.INSTANCE);
         addTokenizer(CDATATokenizer.INSTANCE);

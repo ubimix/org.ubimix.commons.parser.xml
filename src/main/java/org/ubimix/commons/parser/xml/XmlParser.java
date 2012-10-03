@@ -9,15 +9,8 @@ import java.util.Map;
 
 import org.ubimix.commons.parser.AbstractParser;
 import org.ubimix.commons.parser.ITokenizer;
-import org.ubimix.commons.parser.StreamToken;
-import org.ubimix.commons.parser.AbstractParser.IParserListener;
+import org.ubimix.commons.parser.ITokenizer.StreamToken;
 import org.ubimix.commons.parser.text.TextDict;
-import org.ubimix.commons.parser.xml.CDATAToken;
-import org.ubimix.commons.parser.xml.Entity;
-import org.ubimix.commons.parser.xml.EntityToken;
-import org.ubimix.commons.parser.xml.TagToken;
-import org.ubimix.commons.parser.xml.XMLDict;
-import org.ubimix.commons.parser.xml.XMLTokenizer;
 import org.ubimix.commons.parser.xml.CommentTokenizer.CommentToken;
 
 /**
@@ -25,7 +18,7 @@ import org.ubimix.commons.parser.xml.CommentTokenizer.CommentToken;
  */
 public class XmlParser extends AbstractParser<XmlParser.IXmlParserListener> {
 
-    public interface IXmlParserListener extends IParserListener {
+    public interface IXmlParserListener extends AbstractParser.IParserListener {
 
         void beginElement(
             String tagName,
@@ -166,11 +159,14 @@ public class XmlParser extends AbstractParser<XmlParser.IXmlParserListener> {
         fBuf.append(content);
     }
 
+    private boolean check(StreamToken token, Class<?> type) {
+        return type.isInstance(token);
+    }
+
     @Override
     protected void doParse() {
         StreamToken token = getToken(true);
         while (token != null) {
-            String key = token.getKey();
             // XML:
             // public final static String CDATA = "CDATA";
             // public final static String COMMENT = "comment";
@@ -183,25 +179,25 @@ public class XmlParser extends AbstractParser<XmlParser.IXmlParserListener> {
             // public final static String SPACES = "spaces";
             // public final static String SPECIAL = "special";
             // public final static String WORD = "word";
-            if (TextDict.SPACES.equals(key)) {
+            if (check(token, TextDict.SpacesToken.class)) {
                 reportSpaces(token);
-            } else if (TextDict.WORD.equals(key)) {
+            } else if (check(token, TextDict.WordToken.class)) {
                 reportWord(token);
-            } else if (TextDict.EOL.equals(key)) {
+            } else if (check(token, TextDict.NewLineToken.class)) {
                 reportEOL(token);
-            } else if (XMLDict.TAG.equals(key)) {
+            } else if (check(token, TagToken.class)) {
                 reportTag((TagToken) token);
-            } else if (TextDict.SPECIAL.equals(key)) {
+            } else if (check(token, TextDict.SpecialSymbolsToken.class)) {
                 reportSpecialSymbols(token);
-            } else if (XMLDict.CDATA.equals(key)) {
+            } else if (check(token, CDATAToken.class)) {
                 reportCDATA((CDATAToken) token);
-            } else if (XMLDict.COMMENT.equals(key)) {
+            } else if (check(token, CommentToken.class)) {
                 reportComment((CommentToken) token);
-            } else if (XMLDict.ENTITY.equals(key)) {
+            } else if (check(token, EntityToken.class)) {
                 reportEntity((EntityToken) token);
-            } else if (XMLDict.PROCESSING.equals(key)) {
+            } else if (check(token, ProcessingInstructionToken.class)) {
                 reportProcessingInstructions(token);
-            } else if (XMLDict.PROLOG.equals(key)) {
+            } else if (check(token, PrologToken.class)) {
                 reportProlog(token);
             }
             token = getToken(true);
@@ -238,7 +234,7 @@ public class XmlParser extends AbstractParser<XmlParser.IXmlParserListener> {
     }
 
     private void reportEOL(StreamToken token) {
-        appendText(token.getContent());
+        appendText(token.getText());
     }
 
     private void reportProcessingInstructions(StreamToken token) {
@@ -250,18 +246,18 @@ public class XmlParser extends AbstractParser<XmlParser.IXmlParserListener> {
     }
 
     private void reportSpaces(StreamToken token) {
-        appendText(token.getContent());
+        appendText(token.getText());
     }
 
     private void reportSpecialSymbols(StreamToken token) {
-        appendText(token.getContent());
+        appendText(token.getText());
     }
 
     private void reportTag(TagToken token) {
         flushText();
         String tagName = token.getName();
         if (token.isOpen()) {
-            Map<String, String> attributes = token.getAttributes();
+            Map<String, String> attributes = token.getAttributesAsMap();
             if (attributes == null) {
                 attributes = Collections.emptyMap();
             }
@@ -277,6 +273,6 @@ public class XmlParser extends AbstractParser<XmlParser.IXmlParserListener> {
     }
 
     private void reportWord(StreamToken token) {
-        appendText(token.getContent());
+        appendText(token.getText());
     }
 }
