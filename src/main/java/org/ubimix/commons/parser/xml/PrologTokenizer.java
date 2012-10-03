@@ -5,6 +5,7 @@ package org.ubimix.commons.parser.xml;
 
 import java.util.List;
 
+import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.base.DelimitedTextTokenizer;
 
 /**

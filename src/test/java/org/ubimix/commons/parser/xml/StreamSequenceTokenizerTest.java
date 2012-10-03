@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 import org.ubimix.commons.parser.CharStream;
 import org.ubimix.commons.parser.CompositeTokenizer;
 import org.ubimix.commons.parser.ITokenizer;
-import org.ubimix.commons.parser.ITokenizer.StreamToken;
+import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.base.SequenceTokenizer;
 import org.ubimix.commons.parser.text.TextTokenizer;
 

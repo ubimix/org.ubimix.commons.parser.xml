@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ubimix.commons.parser.CharStream.Pointer;
-import org.ubimix.commons.parser.ITokenizer.StreamToken;
+import org.ubimix.commons.parser.StreamToken;
 
 /**
  * @author kotelnikov

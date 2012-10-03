@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.ubimix.commons.parser.AbstractParser;
 import org.ubimix.commons.parser.ITokenizer;
-import org.ubimix.commons.parser.ITokenizer.StreamToken;
+import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.text.TextDict;
 import org.ubimix.commons.parser.xml.CommentTokenizer.CommentToken;
 
@@ -167,18 +167,6 @@ public class XmlParser extends AbstractParser<XmlParser.IXmlParserListener> {
     protected void doParse() {
         StreamToken token = getToken(true);
         while (token != null) {
-            // XML:
-            // public final static String CDATA = "CDATA";
-            // public final static String COMMENT = "comment";
-            // public final static String ENTITY = "entity";
-            // public final static String PROCESSING = "processing";
-            // public final static String PROLOG = "prolog";
-            // public final static String TAG = "tag";
-            // Text:
-            // public final static String EOL = "eol";
-            // public final static String SPACES = "spaces";
-            // public final static String SPECIAL = "special";
-            // public final static String WORD = "word";
             if (check(token, TextDict.SpacesToken.class)) {
                 reportSpaces(token);
             } else if (check(token, TextDict.WordToken.class)) {

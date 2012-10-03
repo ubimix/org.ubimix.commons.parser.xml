@@ -6,7 +6,7 @@ package org.ubimix.commons.parser.html;
 import junit.framework.TestCase;
 
 import org.ubimix.commons.parser.CharStream;
-import org.ubimix.commons.parser.ITokenizer.StreamToken;
+import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.xml.Entity;
 import org.ubimix.commons.parser.xml.EntityFactory;
 import org.ubimix.commons.parser.xml.EntityToken;

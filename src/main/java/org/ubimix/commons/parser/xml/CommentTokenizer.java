@@ -3,6 +3,7 @@
  */
 package org.ubimix.commons.parser.xml;
 
+import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.base.DelimitedTextTokenizer;
 
 public class CommentTokenizer extends DelimitedTextTokenizer {

@@ -6,7 +6,7 @@ package org.ubimix.commons.parser.xml;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ubimix.commons.parser.ITokenizer.StreamToken;
+import org.ubimix.commons.parser.StreamToken;
 
 /**
  * @author kotelnikov

@@ -11,7 +11,7 @@ import java.util.List;
 import org.ubimix.commons.parser.CharStream;
 import org.ubimix.commons.parser.CharStream.Pointer;
 import org.ubimix.commons.parser.ITokenizer;
-import org.ubimix.commons.parser.ITokenizer.StreamToken;
+import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.text.TextDict;
 
 /**
