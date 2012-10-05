@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.ubimix.commons.parser.AbstractTokenizer;
-import org.ubimix.commons.parser.CharStream;
-import org.ubimix.commons.parser.CharStream.Marker;
-import org.ubimix.commons.parser.CharStream.Pointer;
+import org.ubimix.commons.parser.ICharStream;
+import org.ubimix.commons.parser.ICharStream.IMarker;
+import org.ubimix.commons.parser.ICharStream.IPointer;
 import org.ubimix.commons.parser.StreamToken;
 
 public class TagTokenizer extends AbstractTokenizer {
@@ -75,16 +75,16 @@ public class TagTokenizer extends AbstractTokenizer {
     }
 
     @Override
-    public StreamToken read(CharStream stream) {
+    public StreamToken read(ICharStream stream) {
         char ch = stream.getChar();
         if (ch != '<') {
             return null;
         }
 
         TagToken result = null;
-        Marker marker = stream.markPosition();
+        ICharStream.IMarker marker = stream.markPosition();
         try {
-            Pointer begin = stream.getPointer();
+            ICharStream.IPointer begin = stream.getPointer();
             if (!stream.incPos()) {
                 return null;
             }
@@ -99,13 +99,13 @@ public class TagTokenizer extends AbstractTokenizer {
                 }
             }
 
-            Pointer nameBegin = stream.getPointer();
+            ICharStream.IPointer nameBegin = stream.getPointer();
             skipName(stream);
-            Pointer nameEnd = stream.getPointer();
-            if (nameBegin.pos == nameEnd.pos) {
+            ICharStream.IPointer nameEnd = stream.getPointer();
+            if (nameBegin.getPos() == nameEnd.getPos()) {
                 return null;
             }
-            String name = marker.getSubstring(nameBegin, nameEnd);
+            String name = getString(marker, nameBegin, nameEnd);
 
             List<AttrToken> attributes = null;
             while (true) {
@@ -148,8 +148,8 @@ public class TagTokenizer extends AbstractTokenizer {
                     break;
                 }
             }
-            Pointer end = stream.getPointer();
-            result = newToken(begin, end, marker.getSubstring());
+            ICharStream.IPointer end = stream.getPointer();
+            result = newToken(begin, end, getString(marker, begin, end));
             result.init(open, close);
             result.setName(nameBegin, nameEnd, name);
             result.setAttributes(attributes);
@@ -159,7 +159,7 @@ public class TagTokenizer extends AbstractTokenizer {
         }
     }
 
-    private void skipName(CharStream stream) {
+    private void skipName(ICharStream stream) {
         char ch = stream.getChar();
         if (!Character.isLetter(ch)) {
             return;
@@ -172,7 +172,7 @@ public class TagTokenizer extends AbstractTokenizer {
         }
     }
 
-    private boolean skipSpaces(CharStream stream) {
+    private boolean skipSpaces(ICharStream stream) {
         boolean result = false;
         while (Character.isSpaceChar(stream.getChar())) {
             result = true;
@@ -183,7 +183,7 @@ public class TagTokenizer extends AbstractTokenizer {
         return result;
     }
 
-    private boolean skipSpecialSymbols(CharStream stream) {
+    private boolean skipSpecialSymbols(ICharStream stream) {
         boolean result = false;
         while (isSpecialSymbol(stream.getChar())) {
             result = true;

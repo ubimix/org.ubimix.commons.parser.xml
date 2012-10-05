@@ -6,6 +6,7 @@ package org.ubimix.commons.parser.html;
 import junit.framework.TestCase;
 
 import org.ubimix.commons.parser.CharStream;
+import org.ubimix.commons.parser.ICharStream;
 import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.xml.Entity;
 import org.ubimix.commons.parser.xml.EntityFactory;
@@ -26,7 +27,7 @@ public class XHTMLEntityTokenizerTest extends TestCase {
         String str,
         Entity control) {
         EntityTokenizer tokenizer = new EntityTokenizer(keyFactory);
-        CharStream stream = new CharStream(str);
+        ICharStream stream = new CharStream(str);
         StreamToken token = tokenizer.read(stream);
         if (control != null) {
             assertNotNull(token);

@@ -4,9 +4,9 @@
 package org.ubimix.commons.parser.xml;
 
 import org.ubimix.commons.parser.AbstractTokenizer;
-import org.ubimix.commons.parser.CharStream;
-import org.ubimix.commons.parser.CharStream.Marker;
-import org.ubimix.commons.parser.CharStream.Pointer;
+import org.ubimix.commons.parser.ICharStream;
+import org.ubimix.commons.parser.ICharStream.IMarker;
+import org.ubimix.commons.parser.ICharStream.IPointer;
 import org.ubimix.commons.parser.StreamToken;
 
 /**
@@ -16,7 +16,7 @@ public class AttrTokenizer extends AbstractTokenizer {
 
     public static final AttrTokenizer INSTANCE = new AttrTokenizer();
 
-    public final static boolean skipQuotedText(CharStream stream, char esc) {
+    public final static boolean skipQuotedText(ICharStream stream, char esc) {
         boolean result = false;
         char openChar = stream.getChar();
         if (openChar == '\'' || openChar == '"') {
@@ -54,20 +54,20 @@ public class AttrTokenizer extends AbstractTokenizer {
     }
 
     @Override
-    public AttrToken read(CharStream stream) {
+    public AttrToken read(ICharStream stream) {
         AttrToken result = null;
-        Marker marker = stream.markPosition();
+        ICharStream.IMarker marker = stream.markPosition();
         try {
-            Pointer nameBegin = stream.getPointer();
+            ICharStream.IPointer nameBegin = stream.getPointer();
             skipName(stream);
-            Pointer nameEnd = stream.getPointer();
-            if (nameBegin.pos == nameEnd.pos) {
+            ICharStream.IPointer nameEnd = stream.getPointer();
+            if (nameBegin.getPos() == nameEnd.getPos()) {
                 return null;
             }
-            String name = marker.getSubstring(nameEnd.pos - nameBegin.pos);
+            String name = getString(marker, nameBegin, nameEnd);
             skipSpaces(stream);
-            Pointer valueBegin = stream.getPointer();
-            Pointer valueEnd = stream.getPointer();
+            ICharStream.IPointer valueBegin = stream.getPointer();
+            ICharStream.IPointer valueEnd = stream.getPointer();
             if (stream.getChar() == '=') {
                 stream.incPos();
                 skipSpaces(stream);
@@ -75,12 +75,8 @@ public class AttrTokenizer extends AbstractTokenizer {
                 skipValue(stream);
                 valueEnd = stream.getPointer();
             }
-            String value = marker.getSubstring(valueBegin, valueEnd.pos
-                - valueBegin.pos);
-            result = newToken(
-                nameBegin,
-                valueEnd,
-                marker.getSubstring(valueEnd.pos));
+            String value = getString(marker, valueBegin, valueEnd);
+            result = newToken(nameBegin, valueEnd, getString(marker, valueEnd));
             result.setName(nameBegin, nameEnd, name);
             result.setValue(valueBegin, valueEnd, value);
             return result;
@@ -89,7 +85,7 @@ public class AttrTokenizer extends AbstractTokenizer {
         }
     }
 
-    private void skipName(CharStream stream) {
+    private void skipName(ICharStream stream) {
         char ch = stream.getChar();
         while (Character.isLetterOrDigit(ch) || ch == ':' || ch == '-') {
             if (!stream.incPos()) {
@@ -99,12 +95,12 @@ public class AttrTokenizer extends AbstractTokenizer {
         }
     }
 
-    private void skipSpaces(CharStream stream) {
+    private void skipSpaces(ICharStream stream) {
         for (; Character.isSpaceChar(stream.getChar()); stream.incPos()) {
         }
     }
 
-    private boolean skipValue(CharStream stream) {
+    private boolean skipValue(ICharStream stream) {
         char esc = getEscapeSymbol();
         boolean result = skipQuotedText(stream, esc);
         if (!result) {

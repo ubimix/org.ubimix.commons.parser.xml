@@ -249,15 +249,23 @@ public class XmlParser extends AbstractParser<XmlParser.IXmlParserListener> {
             if (attributes == null) {
                 attributes = Collections.emptyMap();
             }
-            fPeek = new TagInfo(fPeek, tagName, attributes);
-            fPeek.beginElement(fListener);
+            push(tagName, attributes);
         }
         if (token.isClose()) {
-            if (fPeek != null) {
-                fPeek.checkTagName(tagName);
-                fPeek = fPeek.endElement(fListener);
-            }
+            pop(tagName);
         }
+    }
+
+    protected void pop(String tagName) {
+        if (fPeek != null) {
+            fPeek.checkTagName(tagName);
+            fPeek = fPeek.endElement(fListener);
+        }
+    }
+
+    protected void push(String tagName, Map<String, String> attributes) {
+        fPeek = new TagInfo(fPeek, tagName, attributes);
+        fPeek.beginElement(fListener);
     }
 
     private void reportWord(StreamToken token) {

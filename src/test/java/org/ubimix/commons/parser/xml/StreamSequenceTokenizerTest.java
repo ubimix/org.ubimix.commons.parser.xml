@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import org.ubimix.commons.parser.CharStream;
 import org.ubimix.commons.parser.CompositeTokenizer;
+import org.ubimix.commons.parser.ICharStream;
 import org.ubimix.commons.parser.ITokenizer;
 import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.base.SequenceTokenizer;
@@ -84,7 +85,7 @@ public class StreamSequenceTokenizerTest extends TestCase {
     private void testTokenizer(ITokenizer tokenizer, String str, String control) {
         StringBuilder first = new StringBuilder();
         StringBuilder second = new StringBuilder();
-        CharStream stream = new CharStream(str);
+        ICharStream stream = new CharStream(str);
         while (true) {
             StreamToken token = tokenizer.read(stream);
             if (token == null) {

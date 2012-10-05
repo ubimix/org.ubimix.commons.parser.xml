@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.util.List;
 
 import org.ubimix.commons.parser.CharStream;
-import org.ubimix.commons.parser.CharStream.Pointer;
+import org.ubimix.commons.parser.ICharStream;
+import org.ubimix.commons.parser.ICharStream.IPointer;
 import org.ubimix.commons.parser.ITokenizer;
 import org.ubimix.commons.parser.StreamToken;
+import org.ubimix.commons.parser.html.XHTMLEntities;
 import org.ubimix.commons.parser.text.TextDict;
 
 /**
@@ -54,7 +56,9 @@ public class XMLFormatter {
     }
 
     private String format(String html) {
-        ITokenizer tokenizer = XMLTokenizer.getFullXMLTokenizer();
+        EntityFactory entityFactory = new EntityFactory();
+        new XHTMLEntities(entityFactory);
+        ITokenizer tokenizer = XMLTokenizer.getFullXMLTokenizer(entityFactory);
         StringBuilder first = new StringBuilder();
         StringBuilder second = new StringBuilder();
         first
@@ -77,13 +81,13 @@ public class XMLFormatter {
                 + "</head>"
                 + "<body>");
         int lastLine = 0;
-        CharStream stream = new CharStream(html);
+        ICharStream stream = new CharStream(html);
         while (true) {
             StreamToken token = tokenizer.read(stream);
             if (token == null) {
                 break;
             }
-            lastLine = token.getEnd().line;
+            lastLine = token.getEnd().getLine();
             format(second, token);
         }
         first.append("<table class='container'><tr valign='top'>");
@@ -164,13 +168,14 @@ public class XMLFormatter {
         String name = tag.getName();
         buf.append("<b class='name'>").append(name).append("</b>");
         String str = tag.getText();
-        Pointer start = tag.getBegin();
-        Pointer prev = tag.getNameEnd();
+        ICharStream.IPointer start = tag.getBegin();
+        ICharStream.IPointer prev = tag.getNameEnd();
         List<AttrToken> attributes = tag.getAttributes();
         for (AttrToken attr : attributes) {
-            Pointer curr = attr.getBegin();
-            buf.append(str
-                .substring(prev.pos - start.pos, curr.pos - start.pos));
+            ICharStream.IPointer curr = attr.getBegin();
+            buf.append(str.substring(
+                prev.getPos() - start.getPos(),
+                curr.getPos() - start.getPos()));
 
             buf.append("<b class='attr'>");
             buf.append(attr.getName());
@@ -178,8 +183,9 @@ public class XMLFormatter {
 
             prev = attr.getNameEnd();
             curr = attr.getValueBegin();
-            buf.append(str
-                .substring(prev.pos - start.pos, curr.pos - start.pos));
+            buf.append(str.substring(
+                prev.getPos() - start.getPos(),
+                curr.getPos() - start.getPos()));
 
             buf.append("<b class='value'>");
             buf.append(escape(attr.getValue()));

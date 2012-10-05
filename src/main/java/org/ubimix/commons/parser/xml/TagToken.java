@@ -8,7 +8,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ubimix.commons.parser.CharStream.Pointer;
+import org.ubimix.commons.parser.ICharStream;
+import org.ubimix.commons.parser.ICharStream.IPointer;
 import org.ubimix.commons.parser.StreamToken;
 
 /**
@@ -22,9 +23,9 @@ public class TagToken extends StreamToken {
 
     private String fName;
 
-    private Pointer fNameBegin;
+    private ICharStream.IPointer fNameBegin;
 
-    private Pointer fNameEnd;
+    private ICharStream.IPointer fNameEnd;
 
     private boolean fOpen;
 
@@ -61,14 +62,14 @@ public class TagToken extends StreamToken {
     /**
      * @return the nameBegin
      */
-    public Pointer getNameBegin() {
+    public ICharStream.IPointer getNameBegin() {
         return fNameBegin;
     }
 
     /**
      * @return the nameEnd
      */
-    public Pointer getNameEnd() {
+    public ICharStream.IPointer getNameEnd() {
         return fNameEnd;
     }
 
@@ -93,7 +94,7 @@ public class TagToken extends StreamToken {
         fAttributes = attributes;
     }
 
-    public void setName(Pointer begin, Pointer end, String str) {
+    public void setName(ICharStream.IPointer begin, ICharStream.IPointer end, String str) {
         fNameBegin = begin;
         fNameEnd = end;
         fName = str;

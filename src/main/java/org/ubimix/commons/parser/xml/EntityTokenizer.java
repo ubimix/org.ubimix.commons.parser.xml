@@ -4,8 +4,8 @@
 package org.ubimix.commons.parser.xml;
 
 import org.ubimix.commons.parser.AbstractTokenizer;
-import org.ubimix.commons.parser.CharStream;
-import org.ubimix.commons.parser.CharStream.Marker;
+import org.ubimix.commons.parser.ICharStream;
+import org.ubimix.commons.parser.ICharStream.IMarker;
 import org.ubimix.commons.parser.StreamToken;
 
 /**
@@ -29,13 +29,13 @@ public class EntityTokenizer extends AbstractTokenizer {
     }
 
     @Override
-    public StreamToken read(CharStream stream) {
+    public StreamToken read(ICharStream stream) {
         char ch = stream.getChar();
         if (ch != '&') {
             return null;
         }
         EntityToken result = null;
-        Marker marker = stream.markPosition();
+        ICharStream.IMarker marker = stream.markPosition();
         try {
             Entity entity = fReader.readEntity(stream);
             if (entity != null) {

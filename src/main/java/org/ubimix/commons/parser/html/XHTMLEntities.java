@@ -13,7 +13,10 @@ public class XHTMLEntities {
 
     public final XHTMLSymbolsEntities SYMBOLS;
 
+    public final XMLEntities XML;
+
     public XHTMLEntities(EntityFactory entityFactory) {
+        XML = new XMLEntities(entityFactory);
         CHARS = new XHTMLCharactersEntities(entityFactory);
         SYMBOLS = new XHTMLSymbolsEntities(entityFactory);
         SPECIALS = new XHTMLSpecialEntities(entityFactory);

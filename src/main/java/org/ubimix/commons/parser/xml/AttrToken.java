@@ -3,7 +3,8 @@
  */
 package org.ubimix.commons.parser.xml;
 
-import org.ubimix.commons.parser.CharStream.Pointer;
+import org.ubimix.commons.parser.ICharStream;
+import org.ubimix.commons.parser.ICharStream.IPointer;
 import org.ubimix.commons.parser.StreamToken;
 
 /**
@@ -13,15 +14,15 @@ public class AttrToken extends StreamToken {
 
     private String fName;
 
-    private Pointer fNameBegin;
+    private ICharStream.IPointer fNameBegin;
 
-    private Pointer fNameEnd;
+    private ICharStream.IPointer fNameEnd;
 
     private String fValue;
 
-    private Pointer fValueBegin;
+    private ICharStream.IPointer fValueBegin;
 
-    private Pointer fValueEnd;
+    private ICharStream.IPointer fValueEnd;
 
     /**
      * @return the name
@@ -33,14 +34,14 @@ public class AttrToken extends StreamToken {
     /**
      * @return the nameBegin
      */
-    public Pointer getNameBegin() {
+    public ICharStream.IPointer getNameBegin() {
         return fNameBegin;
     }
 
     /**
      * @return the nameEnd
      */
-    public Pointer getNameEnd() {
+    public ICharStream.IPointer getNameEnd() {
         return fNameEnd;
     }
 
@@ -54,14 +55,14 @@ public class AttrToken extends StreamToken {
     /**
      * @return the valueBegin
      */
-    public Pointer getValueBegin() {
+    public ICharStream.IPointer getValueBegin() {
         return fValueBegin;
     }
 
     /**
      * @return the valueEnd
      */
-    public Pointer getValueEnd() {
+    public ICharStream.IPointer getValueEnd() {
         return fValueEnd;
     }
 
@@ -76,13 +77,13 @@ public class AttrToken extends StreamToken {
         return value;
     }
 
-    void setName(Pointer begin, Pointer end, String str) {
+    void setName(ICharStream.IPointer begin, ICharStream.IPointer end, String str) {
         fNameBegin = begin;
         fNameEnd = end;
         fName = str;
     }
 
-    void setValue(Pointer begin, Pointer end, String str) {
+    void setValue(ICharStream.IPointer begin, ICharStream.IPointer end, String str) {
         fValueBegin = begin;
         fValueEnd = end;
         fValue = str;

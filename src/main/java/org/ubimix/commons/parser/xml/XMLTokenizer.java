@@ -29,9 +29,13 @@ import org.ubimix.commons.parser.text.TextTokenizer;
 public class XMLTokenizer extends CompositeTokenizer {
 
     public static ITokenizer getFullXMLTokenizer() {
+        EntityFactory entityFactory = new EntityFactory();
+        return getFullXMLTokenizer(entityFactory);
+    }
+
+    public static ITokenizer getFullXMLTokenizer(EntityFactory entityFactory) {
         CompositeTokenizer tokenizer = new CompositeTokenizer();
         // HTML entities
-        EntityFactory entityFactory = new EntityFactory();
         EntityReader entityReader = new EntityReader(entityFactory, false);
         tokenizer.addTokenizer(new XMLTokenizer(entityReader));
         tokenizer.addTokenizer(new TextTokenizer());

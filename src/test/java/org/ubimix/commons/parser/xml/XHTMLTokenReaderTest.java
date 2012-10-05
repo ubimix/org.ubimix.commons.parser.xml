@@ -9,6 +9,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.ubimix.commons.parser.CharStream;
+import org.ubimix.commons.parser.ICharStream;
 import org.ubimix.commons.parser.ITokenizer;
 import org.ubimix.commons.parser.StreamToken;
 
@@ -70,7 +71,7 @@ public class XHTMLTokenReaderTest extends TestCase {
     }
 
     private void testAttributeTokenizer(String str, String name, String value) {
-        CharStream stream = new CharStream(str);
+        ICharStream stream = new CharStream(str);
         StreamToken token = AttrTokenizer.INSTANCE.read(stream);
         assertNotNull(token);
         assertTrue(token instanceof AttrToken);
@@ -195,7 +196,7 @@ public class XHTMLTokenReaderTest extends TestCase {
         String str,
         String tag,
         String... attrsControl) {
-        CharStream stream = new CharStream(str);
+        ICharStream stream = new CharStream(str);
         StreamToken token = TagTokenizer.INSTANCE.read(stream);
         if (tag == null) {
             assertNull(token);
@@ -327,7 +328,7 @@ public class XHTMLTokenReaderTest extends TestCase {
         ITokenizer tokenizer = XMLTokenizer.getFullXMLTokenizer();
         StringBuilder first = new StringBuilder();
         StringBuilder second = new StringBuilder();
-        CharStream stream = new CharStream(str);
+        ICharStream stream = new CharStream(str);
         while (true) {
             StreamToken token = tokenizer.read(stream);
             if (token == null) {
