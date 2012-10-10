@@ -16,7 +16,9 @@ import org.ubimix.commons.parser.xml.CommentTokenizer.CommentToken;
 /**
  * @author kotelnikov
  */
-public class XmlParser extends AbstractParser<IXmlListener> {
+public class XmlParser extends AbstractParser<IXmlListener>
+    implements
+    IXmlParser {
 
     /**
      * This class is used to handle tag attributes

@@ -99,6 +99,10 @@ public class XmlParserTest extends TestCase {
         super(name);
     }
 
+    protected XmlParser newXmlParser() {
+        return new XmlParser();
+    }
+
     public void test() {
         testParser("<div />", "<div></div>");
         testParser("<div>This is a text</div>", "<div>This is a text</div>");
@@ -195,7 +199,7 @@ public class XmlParserTest extends TestCase {
                 System.out.print(str);
             }
         };
-        XmlParser parser = new XmlParser();
+        IXmlParser parser = newXmlParser();
         parser.parse(new CharStream(str), listener);
         assertEquals(control, listener.toString());
         System.out.println();
