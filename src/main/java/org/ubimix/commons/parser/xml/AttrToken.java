@@ -4,7 +4,6 @@
 package org.ubimix.commons.parser.xml;
 
 import org.ubimix.commons.parser.ICharStream;
-import org.ubimix.commons.parser.ICharStream.IPointer;
 import org.ubimix.commons.parser.StreamToken;
 
 /**

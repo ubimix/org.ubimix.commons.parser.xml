@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.ubimix.commons.parser.ICharStream;
-import org.ubimix.commons.parser.ICharStream.IPointer;
 import org.ubimix.commons.parser.StreamToken;
 
 /**

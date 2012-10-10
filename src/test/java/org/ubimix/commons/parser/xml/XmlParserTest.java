@@ -14,7 +14,7 @@ import org.ubimix.commons.parser.CharStream;
  */
 public class XmlParserTest extends TestCase {
 
-    public static class TestListener extends XmlParser.XmlParserListener {
+    public static class TestListener extends XmlListener {
 
         private StringBuilder fBuf = new StringBuilder();
 

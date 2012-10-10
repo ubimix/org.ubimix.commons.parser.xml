@@ -16,28 +16,7 @@ import org.ubimix.commons.parser.xml.CommentTokenizer.CommentToken;
 /**
  * @author kotelnikov
  */
-public class XmlParser extends AbstractParser<XmlParser.IXmlParserListener> {
-
-    public interface IXmlParserListener extends AbstractParser.IParserListener {
-
-        void beginElement(
-            String tagName,
-            Map<String, String> attributes,
-            Map<String, String> namespaces);
-
-        void endElement(
-            String tagName,
-            Map<String, String> attributes,
-            Map<String, String> namespaces);
-
-        void onCDATA(String content);
-
-        void onComment(String commentContent);
-
-        void onEntity(Entity entity);
-
-        void onText(String string);
-    }
+public class XmlParser extends AbstractParser<IXmlListener> {
 
     /**
      * This class is used to handle tag attributes
@@ -81,7 +60,7 @@ public class XmlParser extends AbstractParser<XmlParser.IXmlParserListener> {
             }
         }
 
-        public void beginElement(IXmlParserListener listener) {
+        public void beginElement(IXmlListener listener) {
             listener.beginElement(fTagName, fAttributes, fNamespaces);
         }
 
@@ -95,49 +74,10 @@ public class XmlParser extends AbstractParser<XmlParser.IXmlParserListener> {
             }
         }
 
-        public TagInfo endElement(IXmlParserListener listener) {
+        public TagInfo endElement(IXmlListener listener) {
             listener.endElement(fTagName, fAttributes, fNamespaces);
             return fParent;
         }
-    }
-
-    /**
-     * @author kotelnikov
-     */
-    public static class XmlParserListener extends ParserListener
-        implements
-        IXmlParserListener {
-
-        @Override
-        public void beginElement(
-            String tagName,
-            Map<String, String> attributes,
-            Map<String, String> namespaces) {
-        }
-
-        @Override
-        public void endElement(
-            String tagName,
-            Map<String, String> attributes,
-            Map<String, String> namespaces) {
-        }
-
-        @Override
-        public void onCDATA(String content) {
-        }
-
-        @Override
-        public void onComment(String commentContent) {
-        }
-
-        @Override
-        public void onEntity(Entity entity) {
-        }
-
-        @Override
-        public void onText(String string) {
-        }
-
     }
 
     private StringBuilder fBuf = new StringBuilder();
@@ -205,6 +145,18 @@ public class XmlParser extends AbstractParser<XmlParser.IXmlParserListener> {
         }
     }
 
+    protected void pop(String tagName) {
+        if (fPeek != null) {
+            fPeek.checkTagName(tagName);
+            fPeek = fPeek.endElement(fListener);
+        }
+    }
+
+    protected void push(String tagName, Map<String, String> attributes) {
+        fPeek = new TagInfo(fPeek, tagName, attributes);
+        fPeek.beginElement(fListener);
+    }
+
     private void reportCDATA(CDATAToken token) {
         flushText();
         if (fPeek != null) {
@@ -254,18 +206,6 @@ public class XmlParser extends AbstractParser<XmlParser.IXmlParserListener> {
         if (token.isClose()) {
             pop(tagName);
         }
-    }
-
-    protected void pop(String tagName) {
-        if (fPeek != null) {
-            fPeek.checkTagName(tagName);
-            fPeek = fPeek.endElement(fListener);
-        }
-    }
-
-    protected void push(String tagName, Map<String, String> attributes) {
-        fPeek = new TagInfo(fPeek, tagName, attributes);
-        fPeek.beginElement(fListener);
     }
 
     private void reportWord(StreamToken token) {

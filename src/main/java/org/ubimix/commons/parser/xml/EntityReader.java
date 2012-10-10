@@ -4,8 +4,6 @@
 package org.ubimix.commons.parser.xml;
 
 import org.ubimix.commons.parser.ICharStream;
-import org.ubimix.commons.parser.ICharStream.IMarker;
-import org.ubimix.commons.parser.ICharStream.IPointer;
 
 /**
  * @author kotelnikov
