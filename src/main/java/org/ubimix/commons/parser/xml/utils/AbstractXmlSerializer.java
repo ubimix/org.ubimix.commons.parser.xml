@@ -15,6 +15,8 @@ import org.ubimix.commons.parser.xml.XmlListener;
  */
 public abstract class AbstractXmlSerializer extends XmlListener {
 
+    private boolean fSortAttributes;
+
     /**
      * 
      */
@@ -34,7 +36,9 @@ public abstract class AbstractXmlSerializer extends XmlListener {
         printName(name);
         Set<String> keys = attributes.keySet();
         String[] array = keys.toArray(new String[keys.size()]);
-        Arrays.sort(array);
+        if (sortAttributes()) {
+            Arrays.sort(array);
+        }
         for (String attrName : array) {
             print(" ");
             String attrValue = attributes.get(attrName);
@@ -46,7 +50,9 @@ public abstract class AbstractXmlSerializer extends XmlListener {
 
         keys = namespaces.keySet();
         array = keys.toArray(new String[namespaces.size()]);
-        Arrays.sort(array);
+        if (sortAttributes()) {
+            Arrays.sort(array);
+        }
         for (String prefix : array) {
             print(" ");
             String namespace = namespaces.get(prefix);
@@ -203,6 +209,14 @@ public abstract class AbstractXmlSerializer extends XmlListener {
             pos[0] = idx;
         }
         return entity;
+    }
+
+    public void setSortAttributes(boolean sortAttributes) {
+        fSortAttributes = sortAttributes;
+    }
+
+    public boolean sortAttributes() {
+        return fSortAttributes;
     }
 
 }

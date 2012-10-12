@@ -8,89 +8,12 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.ubimix.commons.parser.CharStream;
+import org.ubimix.commons.parser.xml.utils.XmlSerializer;
 
 /**
  * @author kotelnikov
  */
 public class XmlParserTest extends TestCase {
-
-    public static class TestListener extends XmlListener {
-
-        private StringBuilder fBuf = new StringBuilder();
-
-        @Override
-        public void beginElement(
-            String tagName,
-            Map<String, String> attributes,
-            Map<String, String> namespaces) {
-            print("<" + tagName);
-            printAttributes(null, attributes);
-            printAttributes("xmlns", namespaces);
-            print(">");
-        }
-
-        @Override
-        public void endElement(
-            String tagName,
-            Map<String, String> attributes,
-            Map<String, String> namespaces) {
-            print("</" + tagName + ">");
-        }
-
-        @Override
-        public void onCDATA(String content) {
-            print("<![CDATA[");
-            print(content);
-            print("]]>");
-        }
-
-        @Override
-        public void onComment(String commentContent) {
-            print("<!--");
-            print(commentContent);
-            print("-->");
-        }
-
-        @Override
-        public void onEntity(Entity entity) {
-            print(entity.toString());
-        }
-
-        @Override
-        public void onText(String string) {
-            print(string);
-        }
-
-        protected void print(String str) {
-            fBuf.append(str);
-        }
-
-        protected void printAttributes(String prefix, Map<String, String> map) {
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                String name = entry.getKey();
-                String value = entry.getValue();
-                if (prefix != null) {
-                    if (!"".equals(name)) {
-                        name = prefix + ":" + name;
-                    } else {
-                        name = prefix;
-                    }
-                }
-                print(" ");
-                print(name);
-                print("=");
-                print("'");
-                print(value);
-                print("'");
-            }
-        }
-
-        @Override
-        public String toString() {
-            return fBuf.toString();
-        }
-
-    }
 
     /**
      * @param name
@@ -103,7 +26,50 @@ public class XmlParserTest extends TestCase {
         return new XmlParser();
     }
 
-    public void test() {
+    private String parseAndSerialize(String str) {
+        XmlSerializer listener = new XmlSerializer();
+        listener.setSortAttributes(false);
+        IXmlParser parser = newXmlParser();
+        parser.parse(new CharStream(str), listener);
+        return listener.toString();
+    }
+
+    public void testAttributes() {
+        testAttributeWithEntities("a&#x27;b", "a'b");
+        testAttributeWithEntities("a'b", "a'b");
+        testParser("<div prop=\"value\"/>", "<div prop='value'></div>");
+        testParser("<div prop=\"a'b\"/>", "<div prop='a&#x27;b'></div>");
+
+    }
+
+    private void testAttributeWithEntities(String attr, final String control) {
+        IXmlParser parser = newXmlParser();
+        parser.parse(
+            new CharStream("<div prop=\"" + attr + "\"/>"),
+            new XmlListener() {
+                @Override
+                public void beginElement(
+                    String tagName,
+                    Map<String, String> attributes,
+                    Map<String, String> namespaces) {
+                    String value = attributes.get("prop");
+                    assertEquals(control, value);
+                }
+            });
+    }
+
+    private void testParser(String str) {
+        testParser(str, str);
+    }
+
+    private void testParser(String str, String control) {
+        String test1 = parseAndSerialize(str);
+        assertEquals(control, test1);
+        String test2 = parseAndSerialize(test1);
+        assertEquals(control, test2);
+    }
+
+    public void testSerializeDeserialize() {
         testParser("<div />", "<div></div>");
         testParser("<div>This is a text</div>", "<div>This is a text</div>");
         testParser("<div>This is a text", "<div>This is a text</div>");
@@ -185,24 +151,6 @@ public class XmlParserTest extends TestCase {
                 + "    </entry>\n"
                 + " \n"
                 + "</feed>");
-    }
-
-    private void testParser(String str) {
-        testParser(str, str);
-    }
-
-    private void testParser(String str, String control) {
-        TestListener listener = new TestListener() {
-            @Override
-            protected void print(String str) {
-                super.print(str);
-                System.out.print(str);
-            }
-        };
-        IXmlParser parser = newXmlParser();
-        parser.parse(new CharStream(str), listener);
-        assertEquals(control, listener.toString());
-        System.out.println();
     }
 
 }

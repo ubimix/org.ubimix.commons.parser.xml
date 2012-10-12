@@ -4,7 +4,6 @@
 package org.ubimix.commons.parser.xml;
 
 import org.ubimix.commons.parser.CompositeTokenizer;
-import org.ubimix.commons.parser.ITokenizer;
 import org.ubimix.commons.parser.text.TextTokenizer;
 
 /**
@@ -26,18 +25,17 @@ import org.ubimix.commons.parser.text.TextTokenizer;
  * 
  * @author kotelnikov
  */
-public class XMLTokenizer extends CompositeTokenizer {
+public class XMLTokenizer extends CompositeTokenizer implements IXmlTokenizer {
 
-    public static ITokenizer getFullXMLTokenizer() {
+    public static IXmlTokenizer getFullXMLTokenizer() {
         EntityFactory entityFactory = new EntityFactory();
         return getFullXMLTokenizer(entityFactory);
     }
 
-    public static ITokenizer getFullXMLTokenizer(EntityFactory entityFactory) {
-        CompositeTokenizer tokenizer = new CompositeTokenizer();
+    public static IXmlTokenizer getFullXMLTokenizer(EntityFactory entityFactory) {
         // HTML entities
-        EntityReader entityReader = new EntityReader(entityFactory, false);
-        tokenizer.addTokenizer(new XMLTokenizer(entityReader));
+        EntityTokenizer entityReader = new EntityTokenizer(entityFactory, false);
+        XMLTokenizer tokenizer = new XMLTokenizer(entityReader);
         tokenizer.addTokenizer(new TextTokenizer());
         return tokenizer;
     }
@@ -48,14 +46,19 @@ public class XMLTokenizer extends CompositeTokenizer {
      * @param xmlDict
      * @param entityReader
      */
-    public XMLTokenizer(EntityReader entityReader) {
-        T_ENTITY = new EntityTokenizer(entityReader);
+    public XMLTokenizer(EntityTokenizer entityTokenizer) {
+        T_ENTITY = entityTokenizer;
         addTokenizer(TagTokenizer.INSTANCE);
         addTokenizer(CommentTokenizer.INSTANCE);
         addTokenizer(CDATATokenizer.INSTANCE);
         addTokenizer(ProcessingInstructionTokenizer.INSTANCE);
         addTokenizer(PrologTokenizer.INSTANCE);
         addTokenizer(T_ENTITY);
+    }
+
+    @Override
+    public EntityTokenizer getEntityTokenizer() {
+        return T_ENTITY;
     }
 
 }

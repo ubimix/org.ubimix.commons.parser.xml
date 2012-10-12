@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.ubimix.commons.parser.AbstractParser;
-import org.ubimix.commons.parser.ITokenizer;
 import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.text.TextDict;
 import org.ubimix.commons.parser.xml.CommentTokenizer.CommentToken;
@@ -93,7 +92,7 @@ public class XmlParser extends AbstractParser<IXmlListener>
         this(XMLTokenizer.getFullXMLTokenizer());
     }
 
-    protected XmlParser(ITokenizer tokenizer) {
+    public XmlParser(IXmlTokenizer tokenizer) {
         super(tokenizer);
     }
 
@@ -145,6 +144,11 @@ public class XmlParser extends AbstractParser<IXmlListener>
             }
             fBuf.delete(0, fBuf.length());
         }
+    }
+
+    @Override
+    public IXmlTokenizer getTokenizer() {
+        return (IXmlTokenizer) super.getTokenizer();
     }
 
     protected void pop(String tagName) {
@@ -200,7 +204,13 @@ public class XmlParser extends AbstractParser<IXmlListener>
         String tagName = token.getName();
         if (token.isOpen()) {
             Map<String, String> attributes = token.getAttributesAsMap();
-            if (attributes == null) {
+            if (attributes != null) {
+                for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                    String value = entry.getValue();
+                    value = resolveEntities(value);
+                    entry.setValue(value);
+                }
+            } else {
                 attributes = Collections.emptyMap();
             }
             push(tagName, attributes);
@@ -212,5 +222,10 @@ public class XmlParser extends AbstractParser<IXmlListener>
 
     private void reportWord(StreamToken token) {
         appendText(token.getText());
+    }
+
+    protected String resolveEntities(String value) {
+        EntityTokenizer entityTokenizer = getTokenizer().getEntityTokenizer();
+        return entityTokenizer.resolveAllEntities(value);
     }
 }
