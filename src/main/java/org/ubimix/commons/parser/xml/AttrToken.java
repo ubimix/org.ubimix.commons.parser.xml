@@ -17,6 +17,8 @@ public class AttrToken extends StreamToken {
 
     private ICharStream.IPointer fNameEnd;
 
+    private String fResolvedValue;
+
     private String fValue;
 
     private ICharStream.IPointer fValueBegin;
@@ -44,6 +46,10 @@ public class AttrToken extends StreamToken {
         return fNameEnd;
     }
 
+    public String getResolvedValue() {
+        return fResolvedValue;
+    }
+
     /**
      * @return the value
      */
@@ -65,24 +71,23 @@ public class AttrToken extends StreamToken {
         return fValueEnd;
     }
 
-    public String getValueOnly() {
-        String value = getValue();
-        if (value.startsWith("'") || value.startsWith("\"")) {
-            value = value.substring(1);
-        }
-        if (value.endsWith("'") || value.endsWith("\"")) {
-            value = value.substring(0, value.length() - 1);
-        }
-        return value;
-    }
-
-    void setName(ICharStream.IPointer begin, ICharStream.IPointer end, String str) {
+    void setName(
+        ICharStream.IPointer begin,
+        ICharStream.IPointer end,
+        String str) {
         fNameBegin = begin;
         fNameEnd = end;
         fName = str;
     }
 
-    void setValue(ICharStream.IPointer begin, ICharStream.IPointer end, String str) {
+    public void setResolvedValue(String value) {
+        fResolvedValue = value;
+    }
+
+    void setValue(
+        ICharStream.IPointer begin,
+        ICharStream.IPointer end,
+        String str) {
         fValueBegin = begin;
         fValueEnd = end;
         fValue = str;

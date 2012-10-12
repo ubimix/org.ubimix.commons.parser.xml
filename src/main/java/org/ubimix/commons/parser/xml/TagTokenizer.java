@@ -12,13 +12,7 @@ import org.ubimix.commons.parser.StreamToken;
 
 public class TagTokenizer extends AbstractTokenizer {
 
-    public final static TagTokenizer INSTANCE = new TagTokenizer();
-
     private AttrTokenizer fAttrTokenizer;
-
-    public TagTokenizer() {
-        this(AttrTokenizer.INSTANCE);
-    }
 
     public TagTokenizer(AttrTokenizer attrTokenizer) {
         fAttrTokenizer = attrTokenizer;

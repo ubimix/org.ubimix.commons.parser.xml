@@ -48,7 +48,8 @@ public class XMLTokenizer extends CompositeTokenizer implements IXmlTokenizer {
      */
     public XMLTokenizer(EntityTokenizer entityTokenizer) {
         T_ENTITY = entityTokenizer;
-        addTokenizer(TagTokenizer.INSTANCE);
+        AttrTokenizer attrTokenizer = new AttrTokenizer(entityTokenizer);
+        addTokenizer(new TagTokenizer(attrTokenizer));
         addTokenizer(CommentTokenizer.INSTANCE);
         addTokenizer(CDATATokenizer.INSTANCE);
         addTokenizer(ProcessingInstructionTokenizer.INSTANCE);

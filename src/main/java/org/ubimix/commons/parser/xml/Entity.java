@@ -16,14 +16,25 @@ public class Entity {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!(obj instanceof Entity))
+        }
+        if (!(obj instanceof Entity)) {
             return false;
+        }
         Entity o = (Entity) obj;
         return (fCode == o.fCode)
             && ((fName == null || o.fName == null) ? fName == o.fName : fName
                 .equals(o.fName));
+    }
+
+    public String getChars() {
+        if (fCode >= 0) {
+            char[] chars = Character.toChars(fCode);
+            return new String(chars);
+        } else {
+            return toString();
+        }
     }
 
     /**
@@ -47,6 +58,12 @@ public class Entity {
 
     @Override
     public String toString() {
+        String result = "";
+        if (fCode >= 0) {
+            result = "&#" + fCode + ";";
+        } else {
+            result = "&" + fName + ";";
+        }
         // switch (fCode) {
         // case 38:
         // return "&amp;";
@@ -57,7 +74,7 @@ public class Entity {
         // default:
         // return "&#" + fCode + ";";
         // }
-        return "&#" + fCode + ";";
+        return result;
     }
 
 }

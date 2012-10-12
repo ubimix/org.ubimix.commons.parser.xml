@@ -44,7 +44,7 @@ public class TagToken extends StreamToken {
         if (fAttributes != null) {
             for (AttrToken token : fAttributes) {
                 String name = token.getName();
-                String value = token.getValueOnly();
+                String value = token.getResolvedValue();
                 result.put(name, value);
             }
         }

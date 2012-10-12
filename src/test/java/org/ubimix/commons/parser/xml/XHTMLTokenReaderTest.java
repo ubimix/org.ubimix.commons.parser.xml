@@ -26,6 +26,12 @@ public class XHTMLTokenReaderTest extends TestCase {
         super(name);
     }
 
+    public AttrTokenizer newAttrTokenizer() {
+        EntityFactory entityFactory = new EntityFactory();
+        EntityTokenizer entityTokenizer = new EntityTokenizer(entityFactory);
+        return new AttrTokenizer(entityTokenizer);
+    }
+
     protected boolean printOnScreen() {
         if (fPrintOnScreen == null) {
             boolean result = false;
@@ -72,7 +78,8 @@ public class XHTMLTokenReaderTest extends TestCase {
 
     private void testAttributeTokenizer(String str, String name, String value) {
         ICharStream stream = new CharStream(str);
-        StreamToken token = AttrTokenizer.INSTANCE.read(stream);
+        AttrTokenizer attrTokenizer = newAttrTokenizer();
+        StreamToken token = attrTokenizer.read(stream);
         assertNotNull(token);
         assertTrue(token instanceof AttrToken);
         AttrToken attr = (AttrToken) token;
@@ -197,7 +204,9 @@ public class XHTMLTokenReaderTest extends TestCase {
         String tag,
         String... attrsControl) {
         ICharStream stream = new CharStream(str);
-        StreamToken token = TagTokenizer.INSTANCE.read(stream);
+        AttrTokenizer attrTokenizer = newAttrTokenizer();
+        TagTokenizer tokenizer = new TagTokenizer(attrTokenizer);
+        StreamToken token = tokenizer.read(stream);
         if (tag == null) {
             assertNull(token);
             return;
