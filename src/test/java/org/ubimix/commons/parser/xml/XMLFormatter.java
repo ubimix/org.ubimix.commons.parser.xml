@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.ubimix.commons.parser.CharStream;
 import org.ubimix.commons.parser.ICharStream;
-import org.ubimix.commons.parser.ICharStream.IPointer;
 import org.ubimix.commons.parser.ITokenizer;
 import org.ubimix.commons.parser.StreamToken;
 import org.ubimix.commons.parser.html.XHTMLEntities;
