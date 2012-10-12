@@ -4,6 +4,7 @@
 package org.ubimix.commons.parser.xml;
 
 import org.ubimix.commons.parser.CompositeTokenizer;
+import org.ubimix.commons.parser.ITokenizer;
 import org.ubimix.commons.parser.text.TextTokenizer;
 
 /**
@@ -25,14 +26,14 @@ import org.ubimix.commons.parser.text.TextTokenizer;
  * 
  * @author kotelnikov
  */
-public class XMLTokenizer extends CompositeTokenizer implements IXmlTokenizer {
+public class XMLTokenizer extends CompositeTokenizer {
 
-    public static IXmlTokenizer getFullXMLTokenizer() {
+    public static ITokenizer getFullXMLTokenizer() {
         EntityFactory entityFactory = new EntityFactory();
         return getFullXMLTokenizer(entityFactory);
     }
 
-    public static IXmlTokenizer getFullXMLTokenizer(EntityFactory entityFactory) {
+    public static ITokenizer getFullXMLTokenizer(EntityFactory entityFactory) {
         // HTML entities
         EntityTokenizer entityReader = new EntityTokenizer(entityFactory, false);
         XMLTokenizer tokenizer = new XMLTokenizer(entityReader);
@@ -55,11 +56,6 @@ public class XMLTokenizer extends CompositeTokenizer implements IXmlTokenizer {
         addTokenizer(ProcessingInstructionTokenizer.INSTANCE);
         addTokenizer(PrologTokenizer.INSTANCE);
         addTokenizer(T_ENTITY);
-    }
-
-    @Override
-    public EntityTokenizer getEntityTokenizer() {
-        return T_ENTITY;
     }
 
 }
