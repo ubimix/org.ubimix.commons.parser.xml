@@ -93,7 +93,10 @@ public class TagToken extends StreamToken {
         fAttributes = attributes;
     }
 
-    public void setName(ICharStream.IPointer begin, ICharStream.IPointer end, String str) {
+    public void setName(
+        ICharStream.IPointer begin,
+        ICharStream.IPointer end,
+        String str) {
         fNameBegin = begin;
         fNameEnd = end;
         fName = str;

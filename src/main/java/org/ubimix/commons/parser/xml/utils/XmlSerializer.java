@@ -3,7 +3,6 @@
  */
 package org.ubimix.commons.parser.xml.utils;
 
-
 /**
  * @author kotelnikov
  */

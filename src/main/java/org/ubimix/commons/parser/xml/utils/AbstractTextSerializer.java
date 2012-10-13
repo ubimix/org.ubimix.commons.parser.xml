@@ -8,7 +8,6 @@ import java.util.Map;
 import org.ubimix.commons.parser.xml.Entity;
 import org.ubimix.commons.parser.xml.XmlListener;
 
-
 /**
  * @author kotelnikov
  */

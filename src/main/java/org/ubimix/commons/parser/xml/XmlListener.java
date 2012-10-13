@@ -7,9 +7,7 @@ import org.ubimix.commons.parser.ParserListener;
 /**
  * @author kotelnikov
  */
-public class XmlListener extends ParserListener
-    implements
-    IXmlListener {
+public class XmlListener extends ParserListener implements IXmlListener {
 
     @Override
     public void beginElement(
