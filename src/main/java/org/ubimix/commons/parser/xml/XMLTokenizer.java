@@ -4,7 +4,6 @@
 package org.ubimix.commons.parser.xml;
 
 import org.ubimix.commons.parser.CompositeTokenizer;
-import org.ubimix.commons.parser.ITokenizer;
 import org.ubimix.commons.parser.text.TextTokenizer;
 
 /**
@@ -28,12 +27,12 @@ import org.ubimix.commons.parser.text.TextTokenizer;
  */
 public class XMLTokenizer extends CompositeTokenizer {
 
-    public static ITokenizer getFullXMLTokenizer() {
+    public static XMLTokenizer getFullXMLTokenizer() {
         EntityFactory entityFactory = new EntityFactory();
         return getFullXMLTokenizer(entityFactory);
     }
 
-    public static ITokenizer getFullXMLTokenizer(EntityFactory entityFactory) {
+    public static XMLTokenizer getFullXMLTokenizer(EntityFactory entityFactory) {
         // HTML entities
         EntityTokenizer entityReader = new EntityTokenizer(entityFactory, false);
         XMLTokenizer tokenizer = new XMLTokenizer(entityReader);
@@ -41,7 +40,11 @@ public class XMLTokenizer extends CompositeTokenizer {
         return tokenizer;
     }
 
+    private AttrTokenizer T_ATTR;
+
     private EntityTokenizer T_ENTITY;
+
+    private TagTokenizer T_TAGS;
 
     /**
      * @param xmlDict
@@ -49,13 +52,26 @@ public class XMLTokenizer extends CompositeTokenizer {
      */
     public XMLTokenizer(EntityTokenizer entityTokenizer) {
         T_ENTITY = entityTokenizer;
-        AttrTokenizer attrTokenizer = new AttrTokenizer(entityTokenizer);
-        addTokenizer(new TagTokenizer(attrTokenizer));
+        T_ATTR = new AttrTokenizer(entityTokenizer);
+        T_TAGS = new TagTokenizer(T_ATTR);
         addTokenizer(CommentTokenizer.INSTANCE);
         addTokenizer(CDATATokenizer.INSTANCE);
         addTokenizer(ProcessingInstructionTokenizer.INSTANCE);
         addTokenizer(PrologTokenizer.INSTANCE);
+        addTokenizer(T_TAGS);
         addTokenizer(T_ENTITY);
+    }
+
+    public AttrTokenizer getAttrTokenizer() {
+        return T_ATTR;
+    }
+
+    public EntityTokenizer getEntityTokenizer() {
+        return T_ENTITY;
+    }
+
+    public TagTokenizer getTagTokenizer() {
+        return T_TAGS;
     }
 
 }

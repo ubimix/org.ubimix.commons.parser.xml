@@ -8,10 +8,12 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.ubimix.commons.parser.CharStream;
+import org.ubimix.commons.parser.CompositeTokenizer;
 import org.ubimix.commons.parser.ICharStream;
 import org.ubimix.commons.parser.ITokenizer;
 import org.ubimix.commons.parser.StreamToken;
+import org.ubimix.commons.parser.StringBufferCharStream;
+import org.ubimix.commons.parser.text.TextTokenizer;
 
 /**
  * @author kotelnikov
@@ -30,6 +32,11 @@ public class XHTMLTokenReaderTest extends TestCase {
         EntityFactory entityFactory = new EntityFactory();
         EntityTokenizer entityTokenizer = new EntityTokenizer(entityFactory);
         return new AttrTokenizer(entityTokenizer);
+    }
+
+    protected ICharStream newStream(String str) {
+        // return new CharStream(str);
+        return new StringBufferCharStream(str);
     }
 
     protected boolean printOnScreen() {
@@ -66,6 +73,175 @@ public class XHTMLTokenReaderTest extends TestCase {
         fTokenCounter = 0;
     }
 
+    public void test() throws IOException {
+        // public void testXMLTokenizer() throws IOException {
+        {
+            CompositeTokenizer tokenizer = new CompositeTokenizer();
+            tokenizer.addTokenizer(ProcessingInstructionTokenizer.INSTANCE);
+            tokenizer.addTokenizer(PrologTokenizer.INSTANCE);
+            tokenizer.addTokenizer(new TextTokenizer());
+            test(tokenizer, "<!a>", "<!a>");
+        }
+        {
+            CompositeTokenizer tokenizer = new CompositeTokenizer();
+            tokenizer.addTokenizer(PrologTokenizer.INSTANCE);
+            tokenizer.addTokenizer(ProcessingInstructionTokenizer.INSTANCE);
+            tokenizer.addTokenizer(new TextTokenizer());
+            test(tokenizer, "<!a>", "<!a>");
+        }
+        {
+            CompositeTokenizer tokenizer = new CompositeTokenizer();
+            tokenizer.addTokenizer(PrologTokenizer.INSTANCE);
+            tokenizer.addTokenizer(ProcessingInstructionTokenizer.INSTANCE);
+            tokenizer.addTokenizer(new TextTokenizer());
+            test(tokenizer, "<!a>", "<!a>");
+        }
+
+        {
+            EntityFactory entityFactory = new EntityFactory();
+            EntityTokenizer entityTokenizer = new EntityTokenizer(
+                entityFactory,
+                false);
+            CompositeTokenizer tokenizer = new CompositeTokenizer();
+            // tokenizer.addTokenizer(CommentTokenizer.INSTANCE);
+            // tokenizer.addTokenizer(CDATATokenizer.INSTANCE);
+            // tokenizer.addTokenizer(ProcessingInstructionTokenizer.INSTANCE);
+            tokenizer.addTokenizer(PrologTokenizer.INSTANCE);
+            // tokenizer.addTokenizer(entityTokenizer);
+            tokenizer.addTokenizer(new TagTokenizer(new AttrTokenizer(
+                entityTokenizer)));
+            tokenizer.addTokenizer(new TextTokenizer());
+            test(tokenizer, "<!a>", "<!a>");
+            test(tokenizer, "<!a><b c='?y'/>", "<!a>", "<b c='?y'/>");
+        }
+        {
+            EntityFactory entityFactory = new EntityFactory();
+            EntityTokenizer entityTokenizer = new EntityTokenizer(
+                entityFactory,
+                false);
+            CompositeTokenizer tokenizer = new CompositeTokenizer();
+            // tokenizer.addTokenizer(CommentTokenizer.INSTANCE);
+            // tokenizer.addTokenizer(CDATATokenizer.INSTANCE);
+            tokenizer.addTokenizer(ProcessingInstructionTokenizer.INSTANCE);
+            tokenizer.addTokenizer(PrologTokenizer.INSTANCE);
+            tokenizer.addTokenizer(entityTokenizer);
+            tokenizer.addTokenizer(new TagTokenizer(new AttrTokenizer(
+                entityTokenizer)));
+            tokenizer.addTokenizer(new TextTokenizer());
+            test(tokenizer, "<!a>", "<!a>");
+        }
+
+        testXMLTokenizer("<!a>", "[<!a>]");
+        testXMLTokenizer("<!a><b c='?y'/>", "[<!a>][<b c='?y'/>]");
+        testXMLTokenizer("", "");
+        // Prolog
+        testXMLTokenizer("<!a><b c='x?y'/>", "[<!a>][<b c='x?y'/>]");
+        testXMLTokenizer("<!a><link ref='x?y'/>", "[<!a>][<link ref='x?y'/>]");
+
+        testXMLTokenizer(
+            "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"> \n"
+                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://bits.wikimedia.org/w/extensions/UsabilityInitiative/css/vector/jquery-ui-1.7.2.css?1.7.2\"/> \n"
+                + "",
+            "[<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">][ ][\n]"
+                + "[<link rel=\"stylesheet\" type=\"text/css\" href=\"http://bits.wikimedia.org/w/extensions/UsabilityInitiative/css/vector/jquery-ui-1.7.2.css?1.7.2\"/>][ ][\n]");
+        testXMLTokenizer(
+            "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
+                + " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">",
+            "[<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
+                + " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">]");
+
+        // Parsing instructions
+        testXMLTokenizer("<?xml version=\"1.0\"?>", "[<?xml version=\"1.0\"?>]");
+        testXMLTokenizer(
+            "<?xml version=\"1.0\"?>after",
+            "[<?xml version=\"1.0\"?>][after]");
+        testXMLTokenizer(
+            "before<?xml version=\"1.0\"?>after",
+            "[before][<?xml version=\"1.0\"?>][after]");
+        testXMLTokenizer(
+            "<?xml version=\"1.0\"?>\n"
+                + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
+                + " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">",
+            "[<?xml version=\"1.0\"?>][\n]"
+                + "[<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
+                + " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">]");
+
+        // Parsing instructions and prologs
+        testXMLTokenizer(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                + "<!DOCTYPE greeting [\n"
+                + "  <!ELEMENT greeting (#PCDATA)>\n"
+                + "]>\n"
+                + "<greeting>Hello, world!</greeting>",
+            "[<?xml version=\"1.0\" encoding=\"UTF-8\" ?>][\n]"
+                + "[<!DOCTYPE greeting [\n"
+                + "  <!ELEMENT greeting (#PCDATA)>\n"
+                + "]>][\n]"
+                + "[<greeting>][Hello][,][ ][world][!][</greeting>]");
+
+        // Special characters
+        testXMLTokenizer(".", "[.]");
+        testXMLTokenizer("a.b?c*d", "[a][.][b][?][c][*][d]");
+        // testXMLTokenizer("–*", "[�][�][�][*]");
+        // testXMLTokenizer("<p>–", "[<p>][�][�][�]");
+        testXMLTokenizer("<p>&b&c&#160;</p>", "[<p>][&][b][&][c][&#160;][</p>]");
+
+        // CDATA blocks
+        testXMLTokenizer(""
+            + "<root>\n"
+            + "    <![CDATA[<greeting>Hello, world!</greeting>]]>\n"
+            + "</root>", ""
+            + "[<root>][\n]"
+            + "[    ][<![CDATA[<greeting>Hello, world!</greeting>]]>][\n]"
+            + "[</root>]");
+
+        // A "complex" tokenization example
+        testXMLTokenizer(
+            ""
+                + "<!-- This is a comment -->\n"
+                + "<html>\n"
+                + "<head>\n"
+                + "   <title>Hello, world!</title>\n"
+                + "</head>\n"
+                + "<body>\n"
+                + "   <h1>I am here!</h1>"
+                + "   <p>This is a new paragraph &nbsp; &nbsp;</p>\n"
+                + "<p>An another paragraph <br /> with \r\n"
+                + " a line break.</p>\n"
+                + "<hr \n"
+                + "     style='border: 1px solid red; \r\n"
+                + " margin: 1em 0;'/>\n"
+                + "</body>\n"
+                + "</html>",
+            ""
+                + "[<!-- This is a comment -->][\n]"
+                + "[<html>][\n]"
+                + "[<head>][\n]"
+                + "[   ][<title>][Hello][,][ ][world][!][</title>][\n]"
+                + "[</head>][\n]"
+                + "[<body>][\n]"
+                + "[   ][<h1>][I][ ][am][ ][here][!][</h1>]"
+                + "[   ][<p>][This][ ][is][ ][a][ ][new][ ][paragraph][ ][&nbsp;][ ][&nbsp;][</p>][\n]"
+                + "[<p>][An][ ][another][ ][paragraph][ ][<br />][ ][with][ ][\r\n]"
+                + "[ ][a][ ][line][ ][break][.][</p>][\n]"
+                + "[<hr \n"
+                + "     style='border: 1px solid red; \r\n"
+                + " margin: 1em 0;'/>][\n]"
+                + "[</body>][\n]"
+                + "[</html>]");
+    }
+
+    private void test(ITokenizer tokenizer, String string, String... control) {
+        ICharStream stream = newStream(string);
+        for (String c : control) {
+            StreamToken token = tokenizer.read(stream);
+            assertNotNull(token);
+            assertEquals(c, token.getText());
+        }
+        StreamToken token = tokenizer.read(stream);
+        assertNull(token);
+    }
+
     public void testAttributeTokenizer() throws IOException {
         testAttributeTokenizer("a ", "a", "");
         testAttributeTokenizer("a=b ", "a", "b");
@@ -77,7 +253,7 @@ public class XHTMLTokenReaderTest extends TestCase {
     }
 
     private void testAttributeTokenizer(String str, String name, String value) {
-        ICharStream stream = new CharStream(str);
+        ICharStream stream = newStream(str);
         AttrTokenizer attrTokenizer = newAttrTokenizer();
         StreamToken token = attrTokenizer.read(stream);
         assertNotNull(token);
@@ -203,7 +379,7 @@ public class XHTMLTokenReaderTest extends TestCase {
         String str,
         String tag,
         String... attrsControl) {
-        ICharStream stream = new CharStream(str);
+        ICharStream stream = newStream(str);
         AttrTokenizer attrTokenizer = newAttrTokenizer();
         TagTokenizer tokenizer = new TagTokenizer(attrTokenizer);
         StreamToken token = tokenizer.read(stream);
@@ -227,108 +403,6 @@ public class XHTMLTokenReaderTest extends TestCase {
         }
     }
 
-    public void testXMLTokenizer() throws IOException {
-
-        testXMLTokenizer("<!a>", "[<!a>]");
-        testXMLTokenizer("<!a><b c='?y'/>", "[<!a>][<b c='?y'/>]");
-        testXMLTokenizer("", "");
-        // Prolog
-        testXMLTokenizer("<!a><b c='x?y'/>", "[<!a>][<b c='x?y'/>]");
-        testXMLTokenizer("<!a><link ref='x?y'/>", "[<!a>][<link ref='x?y'/>]");
-
-        testXMLTokenizer(
-            "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"> \n"
-                + "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://bits.wikimedia.org/w/extensions/UsabilityInitiative/css/vector/jquery-ui-1.7.2.css?1.7.2\"/> \n"
-                + "",
-            "[<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">][ ][\n]"
-                + "[<link rel=\"stylesheet\" type=\"text/css\" href=\"http://bits.wikimedia.org/w/extensions/UsabilityInitiative/css/vector/jquery-ui-1.7.2.css?1.7.2\"/>][ ][\n]");
-        testXMLTokenizer(
-            "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
-                + " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">",
-            "[<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
-                + " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">]");
-
-        // Parsing instructions
-        testXMLTokenizer("<?xml version=\"1.0\"?>", "[<?xml version=\"1.0\"?>]");
-        testXMLTokenizer(
-            "<?xml version=\"1.0\"?>after",
-            "[<?xml version=\"1.0\"?>][after]");
-        testXMLTokenizer(
-            "before<?xml version=\"1.0\"?>after",
-            "[before][<?xml version=\"1.0\"?>][after]");
-        testXMLTokenizer(
-            "<?xml version=\"1.0\"?>\n"
-                + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
-                + " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">",
-            "[<?xml version=\"1.0\"?>][\n]"
-                + "[<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n"
-                + " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">]");
-
-        // Parsing instructions and prologs
-        testXMLTokenizer(
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                + "<!DOCTYPE greeting [\n"
-                + "  <!ELEMENT greeting (#PCDATA)>\n"
-                + "]>\n"
-                + "<greeting>Hello, world!</greeting>",
-            "[<?xml version=\"1.0\" encoding=\"UTF-8\" ?>][\n]"
-                + "[<!DOCTYPE greeting [\n"
-                + "  <!ELEMENT greeting (#PCDATA)>\n"
-                + "]>][\n]"
-                + "[<greeting>][Hello][,][ ][world][!][</greeting>]");
-
-        // Special characters
-        testXMLTokenizer(".", "[.]");
-        testXMLTokenizer("a.b?c*d", "[a][.][b][?][c][*][d]");
-        // testXMLTokenizer("–*", "[�][�][�][*]");
-        // testXMLTokenizer("<p>–", "[<p>][�][�][�]");
-        testXMLTokenizer("<p>&b&c&#160;</p>", "[<p>][&][b][&][c][&#160;][</p>]");
-
-        // CDATA blocks
-        testXMLTokenizer(""
-            + "<root>\n"
-            + "    <![CDATA[<greeting>Hello, world!</greeting>]]>\n"
-            + "</root>", ""
-            + "[<root>][\n]"
-            + "[    ][<![CDATA[<greeting>Hello, world!</greeting>]]>][\n]"
-            + "[</root>]");
-
-        // A "complex" tokenization example
-        testXMLTokenizer(
-            ""
-                + "<!-- This is a comment -->\n"
-                + "<html>\n"
-                + "<head>\n"
-                + "   <title>Hello, world!</title>\n"
-                + "</head>\n"
-                + "<body>\n"
-                + "   <h1>I am here!</h1>"
-                + "   <p>This is a new paragraph &nbsp; &nbsp;</p>\n"
-                + "<p>An another paragraph <br /> with \r\n"
-                + " a line break.</p>\n"
-                + "<hr \n"
-                + "     style='border: 1px solid red; \r\n"
-                + " margin: 1em 0;'/>\n"
-                + "</body>\n"
-                + "</html>",
-            ""
-                + "[<!-- This is a comment -->][\n]"
-                + "[<html>][\n]"
-                + "[<head>][\n]"
-                + "[   ][<title>][Hello][,][ ][world][!][</title>][\n]"
-                + "[</head>][\n]"
-                + "[<body>][\n]"
-                + "[   ][<h1>][I][ ][am][ ][here][!][</h1>]"
-                + "[   ][<p>][This][ ][is][ ][a][ ][new][ ][paragraph][ ][&nbsp;][ ][&nbsp;][</p>][\n]"
-                + "[<p>][An][ ][another][ ][paragraph][ ][<br />][ ][with][ ][\r\n]"
-                + "[ ][a][ ][line][ ][break][.][</p>][\n]"
-                + "[<hr \n"
-                + "     style='border: 1px solid red; \r\n"
-                + " margin: 1em 0;'/>][\n]"
-                + "[</body>][\n]"
-                + "[</html>]");
-    }
-
     private void testXMLTokenizer(String str) {
         testXMLTokenizer(str, null);
     }
@@ -337,7 +411,7 @@ public class XHTMLTokenReaderTest extends TestCase {
         ITokenizer tokenizer = XMLTokenizer.getFullXMLTokenizer();
         StringBuilder first = new StringBuilder();
         StringBuilder second = new StringBuilder();
-        ICharStream stream = new CharStream(str);
+        ICharStream stream = newStream(str);
         while (true) {
             StreamToken token = tokenizer.read(stream);
             if (token == null) {

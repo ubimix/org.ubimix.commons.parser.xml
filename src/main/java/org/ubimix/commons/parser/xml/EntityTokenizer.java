@@ -32,6 +32,10 @@ public class EntityTokenizer extends AbstractTokenizer {
         fIgnoreUnknownEntities = ignoreUnknownEntities;
     }
 
+    public EntityFactory getEntityFactory() {
+        return fFactory;
+    }
+
     protected Entity getEntityKey(boolean digit, boolean hex, String str) {
         Entity entity;
         int code = -1;
@@ -100,7 +104,15 @@ public class EntityTokenizer extends AbstractTokenizer {
                 begin = stream.getPointer();
                 ch = stream.getChar();
             }
-            while (Character.isDigit(ch)) {
+            if (hex) {
+                ch = Character.toLowerCase(ch);
+            }
+            while (Character.isDigit(ch)
+                || (hex && (ch == 'a'
+                    || ch == 'b'
+                    || ch == 'c'
+                    || ch == 'd'
+                    || ch == 'e' || ch == 'f'))) {
                 if (!stream.incPos()) {
                     return null;
                 }

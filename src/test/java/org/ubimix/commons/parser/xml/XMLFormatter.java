@@ -27,13 +27,21 @@ public class XMLFormatter {
     public static void main(String[] args) throws IOException {
         XMLFormatter formatter = new XMLFormatter();
         Class<XMLFormatter> cls = XMLFormatter.class;
-        String html = TestUtil.readResource(cls, "Wikipedia-France.html");
+        String resource = "Wikipedia-France.html";
+        String html = TestUtil.readResource(cls, resource);
+        long start = System.currentTimeMillis();
         String result = formatter.format(html);
+        long stop = System.currentTimeMillis();
         File file = new File("./tmp/Wikipedia-France.highlighted.html");
         file.getParentFile().mkdirs();
         FileWriter writer = new FileWriter(file);
         writer.write(result);
         writer.close();
+        System.out.println("The file '"
+            + resource
+            + "' was tokenized and highlihgted in "
+            + (stop - start)
+            + "ms.");
     }
 
     /**

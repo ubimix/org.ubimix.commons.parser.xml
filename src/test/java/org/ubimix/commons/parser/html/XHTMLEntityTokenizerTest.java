@@ -42,6 +42,11 @@ public class XHTMLEntityTokenizerTest extends TestCase {
     public void testXHTMLEntityTokenizer() {
         EntityFactory entityFactory = new EntityFactory();
         XHTMLEntities e = new XHTMLEntities(entityFactory);
+        testEntityTokenizer(entityFactory, "&#60;", e.XML.S_LT);
+        testEntityTokenizer(entityFactory, "&#x3c;", e.XML.S_LT);
+        testEntityTokenizer(entityFactory, "&#62;", e.XML.S_GT);
+        testEntityTokenizer(entityFactory, "&#x3e;", e.XML.S_GT);
+
         testEntityTokenizer(entityFactory, "&agrave; ", e.CHARS.S_agrave);
         testEntityTokenizer(entityFactory, "&#224; ", e.CHARS.S_agrave);
         testEntityTokenizer(entityFactory, "&Alpha; ", e.SYMBOLS.S_Alpha);

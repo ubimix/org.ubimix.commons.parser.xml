@@ -135,7 +135,18 @@ public abstract class AbstractXmlSerializer extends XmlListener {
 
     @Override
     public void onEntity(Entity entity) {
-        print(entity.toString());
+        String str = "";
+        int code = entity.getCode();
+        if (code > 0) {
+            str = Integer.toHexString(code);
+            if (str.length() < 2) {
+                str = "0" + str;
+            }
+            str = "&#x" + str + ";";
+        } else {
+            str = entity.toString();
+        }
+        print(str);
     }
 
     /**

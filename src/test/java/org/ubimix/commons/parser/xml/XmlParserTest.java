@@ -8,6 +8,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.ubimix.commons.parser.CharStream;
+import org.ubimix.commons.parser.ICharStream;
 import org.ubimix.commons.parser.xml.utils.XmlSerializer;
 
 /**
@@ -22,6 +23,11 @@ public class XmlParserTest extends TestCase {
         super(name);
     }
 
+    protected ICharStream newCharStream(String str) {
+        // return new StringBufferCharStream(str);
+        return new CharStream(str);
+    }
+
     protected XmlParser newXmlParser() {
         return new XmlParser();
     }
@@ -30,7 +36,8 @@ public class XmlParserTest extends TestCase {
         XmlSerializer listener = new XmlSerializer();
         listener.setSortAttributes(false);
         IXmlParser parser = newXmlParser();
-        parser.parse(new CharStream(str), listener);
+        ICharStream stream = newCharStream(str);
+        parser.parse(stream, listener);
         return listener.toString();
     }
 

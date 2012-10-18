@@ -10,6 +10,7 @@ import org.ubimix.commons.parser.CompositeTokenizer;
 import org.ubimix.commons.parser.ICharStream;
 import org.ubimix.commons.parser.ITokenizer;
 import org.ubimix.commons.parser.StreamToken;
+import org.ubimix.commons.parser.StringBufferCharStream;
 import org.ubimix.commons.parser.base.SequenceTokenizer;
 import org.ubimix.commons.parser.text.TextTokenizer;
 
@@ -23,6 +24,18 @@ public class StreamSequenceTokenizerTest extends TestCase {
      */
     public StreamSequenceTokenizerTest(String name) {
         super(name);
+    }
+
+    protected boolean isStringBufferStream() {
+        return false;
+    }
+
+    protected ICharStream newCharStream(String str) {
+        if (isStringBufferStream()) {
+            return new StringBufferCharStream(str);
+        } else {
+            return new CharStream(str);
+        }
     }
 
     private ITokenizer newSequenceTokenizer(String beginSequence) {
@@ -85,7 +98,7 @@ public class StreamSequenceTokenizerTest extends TestCase {
     private void testTokenizer(ITokenizer tokenizer, String str, String control) {
         StringBuilder first = new StringBuilder();
         StringBuilder second = new StringBuilder();
-        ICharStream stream = new CharStream(str);
+        ICharStream stream = newCharStream(str);
         while (true) {
             StreamToken token = tokenizer.read(stream);
             if (token == null) {
