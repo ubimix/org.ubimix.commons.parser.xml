@@ -8,11 +8,11 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.ubimix.commons.parser.CharStream;
 import org.ubimix.commons.parser.CompositeTokenizer;
 import org.ubimix.commons.parser.ICharStream;
 import org.ubimix.commons.parser.ITokenizer;
 import org.ubimix.commons.parser.StreamToken;
-import org.ubimix.commons.parser.StringBufferCharStream;
 import org.ubimix.commons.parser.text.TextTokenizer;
 
 /**
@@ -36,7 +36,7 @@ public class XHTMLTokenReaderTest extends TestCase {
 
     protected ICharStream newStream(String str) {
         // return new CharStream(str);
-        return new StringBufferCharStream(str);
+        return new CharStream(str);
     }
 
     protected boolean printOnScreen() {

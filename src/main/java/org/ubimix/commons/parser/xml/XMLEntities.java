@@ -1,11 +1,8 @@
 /**
  * 
  */
-package org.ubimix.commons.parser.html;
+package org.ubimix.commons.parser.xml;
 
-import org.ubimix.commons.parser.xml.Entity;
-import org.ubimix.commons.parser.xml.EntityDictionary;
-import org.ubimix.commons.parser.xml.EntityFactory;
 
 /**
  * @author kotelnikov

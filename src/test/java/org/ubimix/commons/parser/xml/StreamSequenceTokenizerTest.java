@@ -10,7 +10,6 @@ import org.ubimix.commons.parser.CompositeTokenizer;
 import org.ubimix.commons.parser.ICharStream;
 import org.ubimix.commons.parser.ITokenizer;
 import org.ubimix.commons.parser.StreamToken;
-import org.ubimix.commons.parser.StringBufferCharStream;
 import org.ubimix.commons.parser.base.SequenceTokenizer;
 import org.ubimix.commons.parser.text.TextTokenizer;
 
@@ -32,7 +31,7 @@ public class StreamSequenceTokenizerTest extends TestCase {
 
     protected ICharStream newCharStream(String str) {
         if (isStringBufferStream()) {
-            return new StringBufferCharStream(str);
+            return new CharStream(str);
         } else {
             return new CharStream(str);
         }

@@ -12,7 +12,6 @@ import org.ubimix.commons.parser.CharStream;
 import org.ubimix.commons.parser.ICharStream;
 import org.ubimix.commons.parser.ITokenizer;
 import org.ubimix.commons.parser.StreamToken;
-import org.ubimix.commons.parser.html.XHTMLEntities;
 import org.ubimix.commons.parser.text.TextDict;
 
 /**
@@ -64,7 +63,7 @@ public class XMLFormatter {
 
     private String format(String html) {
         EntityFactory entityFactory = new EntityFactory();
-        new XHTMLEntities(entityFactory);
+        new XMLEntities(entityFactory);
         ITokenizer tokenizer = XMLTokenizer.getFullXMLTokenizer(entityFactory);
         StringBuilder first = new StringBuilder();
         StringBuilder second = new StringBuilder();
