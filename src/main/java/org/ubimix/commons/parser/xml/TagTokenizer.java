@@ -18,6 +18,10 @@ public class TagTokenizer extends AbstractTokenizer {
         fAttrTokenizer = attrTokenizer;
     }
 
+    protected boolean acceptNonClosedTags() {
+        return false;
+    }
+
     protected boolean isSpecialSymbol(char ch) {
         boolean result = false;
         switch (ch) {
@@ -116,7 +120,10 @@ public class TagTokenizer extends AbstractTokenizer {
                     stream.incPos();
                     break;
                 } else if (ch == '<') {
-                    return null;
+                    if (acceptNonClosedTags()) {
+                        break;
+                    }
+                    return result;
                 }
 
                 if (skipSpaces(stream)) {
@@ -166,11 +173,16 @@ public class TagTokenizer extends AbstractTokenizer {
 
     private boolean skipSpaces(ICharStream stream) {
         boolean result = false;
-        while (Character.isSpaceChar(stream.getChar())) {
+        char ch = stream.getChar();
+        while (Character.isSpaceChar(ch)
+            || ch == '\n'
+            || ch == '\r'
+            || ch == '\t') {
             result = true;
             if (!stream.incPos()) {
                 break;
             }
+            ch = stream.getChar();
         }
         return result;
     }
